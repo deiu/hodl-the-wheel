@@ -26,6 +26,7 @@ interface GameObject {
 
 interface Powerup extends GameObject {
   powerupType: 'life' | 'speed' | 'invulnerability' | 'gun' | 'doublepoints';
+  spawnTime: number;
 }
 
 interface Bullet extends GameObject {
