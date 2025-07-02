@@ -10,6 +10,7 @@ import shootSound from "@assets/8-bit-shoot_1751479421238.mp3";
 import powerupSound from "@assets/8-bit-powerup_1751479421239.mp3";
 import gameOverSound from "@assets/game-over_1751484756101.mp3";
 import shieldIcon from "@assets/warden_1751489700206.png";
+import lifeIcon from "@assets/1up_1751492808696.png";
 import btcIcon from "@assets/BTC_1751491424662.png";
 import ethIcon from "@assets/ETH_1751491424662.png";
 import bnbIcon from "@assets/BNB_1751491424662.png";
@@ -168,6 +169,7 @@ export default function Game() {
         { key: 'green', src: greenCar },
         { key: 'mycar', src: myCar },
         { key: 'shield', src: shieldIcon },
+        { key: 'life', src: lifeIcon },
         { key: 'btc', src: btcIcon },
         { key: 'eth', src: ethIcon },
         { key: 'bnb', src: bnbIcon },
@@ -800,9 +802,10 @@ export default function Game() {
       // Draw the appropriate powerup icon
       switch (powerupType) {
         case 'life':
-          ctx.font = `${height}px monospace`;
-          ctx.textAlign = 'center';
-          ctx.fillText('❤️', x + width/2, y + height - 2);
+          const lifeImage = imagesRef.current['life'];
+          if (lifeImage) {
+            ctx.drawImage(lifeImage, x, y, width, height);
+          }
           break;
         case 'speed':
           ctx.font = `${height}px monospace`;
@@ -938,9 +941,10 @@ export default function Game() {
       // Draw the appropriate powerup icon (mix of images and emojis)
       switch (type) {
         case 'life':
-          ctx.font = `${size}px monospace`;
-          ctx.textAlign = 'left';
-          ctx.fillText('❤️', iconX, iconY + size - 2);
+          const lifeImage = imagesRef.current['life'];
+          if (lifeImage) {
+            ctx.drawImage(lifeImage, iconX, iconY, size, size);
+          }
           break;
         case 'speed':
           ctx.font = `${size}px monospace`;
@@ -1181,7 +1185,7 @@ export default function Game() {
               <div className="text-sm text-white mb-4">POWERUPS</div>
               <div className="grid grid-cols-2 gap-2 text-left">
                 <div className="text-xs text-pink-400 flex items-center gap-2">
-                  <span className="text-base">❤️</span>
+                  <img src={lifeIcon} alt="Life" className="w-4 h-4" />
                   Life: +1 Life
                 </div>
                 <div className="text-xs text-cyan-400 flex items-center gap-2">
