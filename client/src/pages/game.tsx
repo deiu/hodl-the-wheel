@@ -8,6 +8,7 @@ import myCar from "@assets/mycar_1751475557453.png";
 import backgroundMusic from "@assets/SLOWER-TEMPO2019-12-11_-_Retro_Platforming_-_David_Fesliyan_1751478645287.mp3";
 import shootSound from "@assets/8-bit-shoot_1751479421238.mp3";
 import powerupSound from "@assets/8-bit-powerup_1751479421239.mp3";
+import gameOverSound from "@assets/game-over_1751484756101.mp3";
 import heartIcon from "@assets/life_1751481001186.png";
 import lightningIcon from "@assets/speed_1751483372853.png";
 import shieldIcon from "@assets/shield_1751481001186.png";
@@ -99,6 +100,7 @@ export default function Game() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const shootAudioRef = useRef<HTMLAudioElement | null>(null);
   const powerupAudioRef = useRef<HTMLAudioElement | null>(null);
+  const gameOverAudioRef = useRef<HTMLAudioElement | null>(null);
   const [imagesLoaded, setImagesLoaded] = useState(false);
   const [isMusicPlaying, setIsMusicPlaying] = useState(() => {
     const saved = localStorage.getItem('carRushMusicEnabled');
@@ -186,6 +188,10 @@ export default function Game() {
       const powerupAudio = new Audio(powerupSound);
       powerupAudio.volume = 0.8;
       powerupAudioRef.current = powerupAudio;
+
+      const gameOverAudio = new Audio(gameOverSound);
+      gameOverAudio.volume = 0.9;
+      gameOverAudioRef.current = gameOverAudio;
     };
 
     loadImages();
@@ -236,6 +242,13 @@ export default function Game() {
     if (powerupAudioRef.current) {
       powerupAudioRef.current.currentTime = 0;
       powerupAudioRef.current.play().catch(e => console.log('Could not play powerup sound:', e));
+    }
+  }, []);
+
+  const playGameOverSound = useCallback(() => {
+    if (gameOverAudioRef.current) {
+      gameOverAudioRef.current.currentTime = 0;
+      gameOverAudioRef.current.play().catch(e => console.log('Could not play game over sound:', e));
     }
   }, []);
 
@@ -971,6 +984,26 @@ export default function Game() {
 
   const gameOver = () => {
     const state = gameStateRef.current;
+    const player = state.player;
+    
+    // Create dramatic death explosion
+    createExplosion(player.x + player.width/2, player.y + player.height/2, 80); // Large explosion
+    createExplosion(player.x + player.width/2 - 20, player.y + player.height/2 - 20, 60);
+    createExplosion(player.x + player.width/2 + 20, player.y + player.height/2 + 20, 60);
+    
+    // Create massive debris field
+    createDebrisParticles(player.x + player.width/2, player.y + player.height/2);
+    createParticles(player.x + player.width/2, player.y + player.height/2, '#FF6B6B', 25);
+    createParticles(player.x + player.width/2, player.y + player.height/2, '#FFA500', 20);
+    createParticles(player.x + player.width/2, player.y + player.height/2, '#FFD700', 15);
+    createParticles(player.x + player.width/2, player.y + player.height/2, '#FF1493', 10);
+    
+    // Maximum screen shake
+    addScreenShake(15);
+    
+    // Play game over sound
+    playGameOverSound();
+    
     state.isRunning = false;
     
     if (state.score > localHighScore) {
@@ -1126,8 +1159,8 @@ export default function Game() {
           </div>
         </div>
         
-        {/* Active Powerups Indicator */}
-        <div className="flex justify-center mt-2 space-x-4">
+        {/* Active Powerups Indicator - Centered */}
+        <div className="flex flex-col items-center mt-2 space-y-1">
           {Date.now() < gameState.speedBoostEndTime && (
             <div className="pixel-font text-xs text-cyan-400 bg-black bg-opacity-75 px-2 py-1">
               SPEED BOOST
@@ -1141,6 +1174,11 @@ export default function Game() {
           {Date.now() < gameState.gunEndTime && (
             <div className="pixel-font text-xs text-red-400 bg-black bg-opacity-75 px-2 py-1">
               GUN ACTIVE
+            </div>
+          )}
+          {Date.now() < gameState.doublePointsEndTime && (
+            <div className="pixel-font text-xs text-pink-400 bg-black bg-opacity-75 px-2 py-1">
+              DOUBLE POINTS
             </div>
           )}
         </div>

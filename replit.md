@@ -124,6 +124,11 @@ Changelog:
   * Implemented car debris particle system for realistic destruction
   * Enhanced screen shake and multiple particle colors for dramatic impact
   * Increased explosion radius and added secondary delayed explosions
+- July 02, 2025. Final polish improvements
+  * Centered powerup status descriptions to align with score display
+  * Added dramatic death explosion with multiple large explosions and massive debris field
+  * Integrated game over sound effect with enhanced audio system
+  * Added double points powerup status indicator to UI
 ```
 
 ## User Preferences
