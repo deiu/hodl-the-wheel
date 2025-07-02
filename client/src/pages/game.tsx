@@ -797,9 +797,19 @@ export default function Game() {
               <div className="pixel-font text-xl text-yellow-400 mb-6">
                 {gameState.score.toString().padStart(6, '0')}
               </div>
-              <Button onClick={restartGame} className="retro-button">
-                RESTART GAME
-              </Button>
+              <div className="space-y-4">
+                <Button onClick={restartGame} className="retro-button">
+                  RESTART GAME
+                </Button>
+                
+                <Button 
+                  onClick={toggleMusic}
+                  className="retro-button text-sm"
+                  variant="outline"
+                >
+                  {isMusicPlaying ? '🔊 MUSIC: ON' : '🔇 MUSIC: OFF'}
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </div>
