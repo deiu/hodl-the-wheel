@@ -1,6 +1,10 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import blueCar from "@assets/blue_1751475426603.png";
+import greenCar from "@assets/green_1751475426603.png";
+import redCar from "@assets/red_1751475426603.png";
+import myCar from "@assets/mycar_1751475557453.png";
 
 interface GameObject {
   x: number;
@@ -8,6 +12,7 @@ interface GameObject {
   width: number;
   height: number;
   speed: number;
+  type?: 'red' | 'blue' | 'green' | 'mycar';
 }
 
 interface GameState {
@@ -27,13 +32,16 @@ interface GameState {
 
 export default function Game() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const imagesRef = useRef<Record<string, HTMLImageElement>>({});
+  const [imagesLoaded, setImagesLoaded] = useState(false);
+  
   const gameStateRef = useRef<GameState>({
     isRunning: false,
     isPaused: false,
     gameStarted: false,
     lives: 3,
     score: 0,
-    player: { x: 375, y: 500, width: 50, height: 80, speed: 5 },
+    player: { x: 375, y: 500, width: 50, height: 80, speed: 5, type: 'mycar' },
     obstacles: [],
     powerups: [],
     lastObstacleSpawn: 0,
@@ -49,6 +57,32 @@ export default function Game() {
   const [localHighScore, setLocalHighScore] = useState(
     parseInt(localStorage.getItem('carRushHighScore') || '0')
   );
+
+  // Load car images
+  useEffect(() => {
+    const loadImages = async () => {
+      const imagePromises = [
+        { key: 'red', src: redCar },
+        { key: 'blue', src: blueCar },
+        { key: 'green', src: greenCar },
+        { key: 'mycar', src: myCar }
+      ].map(({ key, src }) => {
+        return new Promise<void>((resolve) => {
+          const img = new Image();
+          img.onload = () => {
+            imagesRef.current[key] = img;
+            resolve();
+          };
+          img.src = src;
+        });
+      });
+
+      await Promise.all(imagePromises);
+      setImagesLoaded(true);
+    };
+
+    loadImages();
+  }, []);
 
   const updateGameState = useCallback(() => {
     setGameState({ ...gameStateRef.current });
@@ -120,12 +154,16 @@ export default function Game() {
     const spawnRate = 800; // Fixed spawn rate
     
     if (now - state.lastObstacleSpawn > spawnRate) {
+      const carTypes: ('red' | 'blue')[] = ['red', 'blue'];
+      const randomType = carTypes[Math.floor(Math.random() * carTypes.length)];
+      
       state.obstacles.push({
         x: Math.random() * (800 - 60),
         y: -80,
         width: 60,
         height: 80,
-        speed: getCurrentObstacleSpeed()
+        speed: getCurrentObstacleSpeed(),
+        type: randomType
       });
       state.lastObstacleSpawn = now;
     }
@@ -216,25 +254,37 @@ export default function Game() {
       ctx.fillRect((canvas.width * 2) / 3, i + (Date.now() / 10) % 60, 4, 30);
     }
 
-    // Draw player car (8-bit style)
+    // Draw player car using image
     const player = state.player;
-    ctx.fillStyle = '#00FF00';
-    ctx.fillRect(player.x, player.y, player.width, player.height);
-    ctx.fillStyle = '#FFFFFF';
-    ctx.fillRect(player.x + 10, player.y + 10, 10, 15);
-    ctx.fillRect(player.x + 30, player.y + 10, 10, 15);
-    ctx.fillRect(player.x + 10, player.y + 55, 10, 15);
-    ctx.fillRect(player.x + 30, player.y + 55, 10, 15);
+    if (imagesLoaded && player.type && imagesRef.current[player.type]) {
+      ctx.drawImage(
+        imagesRef.current[player.type],
+        player.x,
+        player.y,
+        player.width,
+        player.height
+      );
+    } else {
+      // Fallback to green rectangle if image not loaded
+      ctx.fillStyle = '#00FF00';
+      ctx.fillRect(player.x, player.y, player.width, player.height);
+    }
 
-    // Draw obstacles
+    // Draw obstacles using images
     state.obstacles.forEach(obstacle => {
-      ctx.fillStyle = '#FF0000';
-      ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
-      ctx.fillStyle = '#FFFFFF';
-      ctx.fillRect(obstacle.x + 5, obstacle.y + 5, 10, 10);
-      ctx.fillRect(obstacle.x + 45, obstacle.y + 5, 10, 10);
-      ctx.fillRect(obstacle.x + 5, obstacle.y + 65, 10, 10);
-      ctx.fillRect(obstacle.x + 45, obstacle.y + 65, 10, 10);
+      if (imagesLoaded && obstacle.type && imagesRef.current[obstacle.type]) {
+        ctx.drawImage(
+          imagesRef.current[obstacle.type],
+          obstacle.x,
+          obstacle.y,
+          obstacle.width,
+          obstacle.height
+        );
+      } else {
+        // Fallback to red rectangle if image not loaded
+        ctx.fillStyle = '#FF0000';
+        ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+      }
     });
 
     // Draw powerups
@@ -276,7 +326,7 @@ export default function Game() {
     state.score = 0;
     state.obstacles = [];
     state.powerups = [];
-    state.player = { x: 375, y: 500, width: 50, height: 80, speed: 5 };
+    state.player = { x: 375, y: 500, width: 50, height: 80, speed: 5, type: 'mycar' };
     state.gameStartTime = Date.now();
     state.baseObstacleSpeed = 3;
     updateGameState();
