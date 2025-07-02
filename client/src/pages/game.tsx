@@ -213,6 +213,13 @@ export default function Game() {
     initializeAudio();
   }, []);
 
+  // Auto-start music when app loads if user preference is enabled
+  useEffect(() => {
+    if (audioRef.current && isMusicPlaying && imagesLoaded) {
+      audioRef.current.play().catch(e => console.log('Could not auto-start music:', e));
+    }
+  }, [isMusicPlaying, imagesLoaded]);
+
   const updateGameState = useCallback(() => {
     setGameState({ ...gameStateRef.current });
   }, []);
