@@ -1077,7 +1077,7 @@ export default function Game() {
                 </div>
                 <div className="text-xs text-yellow-400 flex items-center gap-2">
                   <img src={shieldIcon} alt="Shield" className="w-4 h-4" />
-                  Shield: 3s Invulnerable
+                  Warden Protection
                 </div>
                 <div className="text-xs text-red-400 flex items-center gap-2">
                   <img src={gunIcon} alt="Gun" className="w-4 h-4" />
@@ -1190,7 +1190,7 @@ export default function Game() {
         )}
         {Date.now() < gameState.invulnerabilityEndTime && (
           <div className="pixel-font text-xs text-yellow-400 bg-black bg-opacity-75 px-2 py-1">
-            INVULNERABLE
+            WARDEN PROTECTION
           </div>
         )}
         {Date.now() < gameState.gunEndTime && (

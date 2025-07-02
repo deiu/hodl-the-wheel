@@ -149,6 +149,10 @@ Changelog:
   * Updated shield powerup icon to new green chevron shield design
   * Applied to both in-game powerups and start page display
   * Enhanced visual consistency with 8-bit pixel art style
+- July 02, 2025. Powerup naming update
+  * Changed shield powerup name from "Shield: 3s Invulnerable" to "Warden Protection"
+  * Updated both start page description and in-game status indicator
+  * Improved thematic consistency with fantasy/RPG naming convention
 ```
 
 ## User Preferences
