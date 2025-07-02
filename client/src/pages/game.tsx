@@ -219,10 +219,10 @@ export default function Game() {
       const randomType = powerupTypes[Math.floor(Math.random() * powerupTypes.length)];
       
       state.powerups.push({
-        x: Math.random() * (800 - 42),
-        y: -42,
-        width: 42,
-        height: 42,
+        x: Math.random() * (800 - 50),
+        y: -50,
+        width: 50,
+        height: 50,
         speed: 2,
         powerupType: randomType
       });
@@ -396,37 +396,37 @@ export default function Game() {
         case 'life':
           // Draw bigger heart icon
           ctx.fillStyle = '#FF1493';
-          ctx.fillRect(x + 10, y + 8, 10, 6);
-          ctx.fillRect(x + 22, y + 8, 10, 6);
-          ctx.fillRect(x + 8, y + 12, 26, 12);
-          ctx.fillRect(x + 10, y + 24, 22, 8);
-          ctx.fillRect(x + 12, y + 32, 18, 6);
-          ctx.fillRect(x + 16, y + 38, 10, 4);
+          ctx.fillRect(x + 12, y + 10, 12, 8);
+          ctx.fillRect(x + 26, y + 10, 12, 8);
+          ctx.fillRect(x + 10, y + 16, 30, 14);
+          ctx.fillRect(x + 12, y + 30, 26, 10);
+          ctx.fillRect(x + 16, y + 40, 18, 6);
+          ctx.fillRect(x + 20, y + 46, 10, 2);
           break;
         case 'speed':
           // Draw bigger lightning bolt
           ctx.fillStyle = '#00FFFF';
-          ctx.fillRect(x + 15, y + 6, 12, 36);
-          ctx.fillRect(x + 9, y + 14, 18, 6);
-          ctx.fillRect(x + 18, y + 30, 18, 6);
+          ctx.fillRect(x + 18, y + 8, 14, 42);
+          ctx.fillRect(x + 12, y + 18, 20, 8);
+          ctx.fillRect(x + 20, y + 36, 20, 8);
           break;
         case 'invulnerability':
           // Draw bigger shield
           ctx.fillStyle = '#FFD700';
-          ctx.fillRect(x + 8, y + 8, 26, 26);
+          ctx.fillRect(x + 10, y + 10, 30, 30);
           ctx.fillStyle = '#FFA500';
-          ctx.fillRect(x + 12, y + 12, 18, 18);
+          ctx.fillRect(x + 14, y + 14, 22, 22);
           ctx.fillStyle = '#FFD700';
-          ctx.fillRect(x + 15, y + 15, 12, 12);
+          ctx.fillRect(x + 18, y + 18, 14, 14);
           break;
         case 'gun':
           // Draw bigger gun icon
           ctx.fillStyle = '#8B4513';
-          ctx.fillRect(x + 12, y + 16, 20, 8);
-          ctx.fillRect(x + 30, y + 18, 8, 4);
-          ctx.fillRect(x + 10, y + 22, 6, 12);
+          ctx.fillRect(x + 14, y + 20, 24, 10);
+          ctx.fillRect(x + 36, y + 22, 10, 6);
+          ctx.fillRect(x + 12, y + 28, 8, 14);
           ctx.fillStyle = '#A0522D';
-          ctx.fillRect(x + 14, y + 18, 16, 4);
+          ctx.fillRect(x + 16, y + 22, 20, 6);
           break;
       }
     });
@@ -444,26 +444,25 @@ export default function Game() {
       ctx.strokeRect(player.x - 2, player.y - 2, player.width + 4, player.height + 4);
     }
 
-    // Draw powerup timers below player car
+    // Draw powerup timers below player car with larger text and icons
     const now = Date.now();
-    let timerY = player.y + player.height + 10;
+    let timerY = player.y + player.height + 15;
     
-    ctx.fillStyle = '#FFFFFF';
-    ctx.font = '8px monospace';
+    ctx.font = '14px monospace';
     ctx.textAlign = 'center';
     
     if (now < state.speedBoostEndTime) {
       const timeLeft = Math.ceil((state.speedBoostEndTime - now) / 1000);
       ctx.fillStyle = '#00FFFF';
       ctx.fillText(`⚡ ${timeLeft}s`, player.x + player.width / 2, timerY);
-      timerY += 12;
+      timerY += 18;
     }
     
     if (now < state.invulnerabilityEndTime) {
       const timeLeft = Math.ceil((state.invulnerabilityEndTime - now) / 1000);
       ctx.fillStyle = '#FFD700';
       ctx.fillText(`🛡 ${timeLeft}s`, player.x + player.width / 2, timerY);
-      timerY += 12;
+      timerY += 18;
     }
     
     if (now < state.gunEndTime) {
