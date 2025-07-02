@@ -157,6 +157,14 @@ Changelog:
   * Changed timer display from "2X" to "2x EXP" near player car
   * Enhanced clarity by explicitly showing this affects experience/score points
   * Maintains consistent visual styling with pink color and countdown timer
+- July 02, 2025. Complete powerup icon overhaul
+  * Updated all powerup icons with new high-quality 8-bit designs
+  * Life: New red pixel heart icon
+  * Speed: New yellow lightning bolt with dynamic design
+  * Warden Protection: Updated to "warden" shield with enhanced green chevron design
+  * Gun: New detailed gray pistol icon
+  * Double Points: New bright yellow star icon
+  * All icons maintain consistent pixel art style and transparent backgrounds
 ```
 
 ## User Preferences

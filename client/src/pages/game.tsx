@@ -9,11 +9,11 @@ import backgroundMusic from "@assets/SLOWER-TEMPO2019-12-11_-_Retro_Platforming_
 import shootSound from "@assets/8-bit-shoot_1751479421238.mp3";
 import powerupSound from "@assets/8-bit-powerup_1751479421239.mp3";
 import gameOverSound from "@assets/game-over_1751484756101.mp3";
-import heartIcon from "@assets/life_1751481001186.png";
-import lightningIcon from "@assets/speed_1751483372853.png";
-import shieldIcon from "@assets/shield_1751487311997.png";
-import gunIcon from "@assets/gun_1751481001186.png";
-import expIcon from "@assets/exp_1751483372853.png";
+import heartIcon from "@assets/life_1751487957040.png";
+import lightningIcon from "@assets/speed_1751487957040.png";
+import shieldIcon from "@assets/warden_1751487957040.png";
+import gunIcon from "@assets/gun_1751487957040.png";
+import expIcon from "@assets/exp_1751487957040.png";
 
 interface GameObject {
   x: number;
