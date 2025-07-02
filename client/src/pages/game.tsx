@@ -105,7 +105,8 @@ export default function Game() {
   const handleInput = () => {
     const keys = keysRef.current;
     const player = gameStateRef.current.player;
-    const canvas = canvasRef.current!;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
 
     if (keys['arrowleft'] || keys['a']) {
       player.x = Math.max(0, player.x - player.speed);
@@ -202,8 +203,10 @@ export default function Game() {
   };
 
   const render = () => {
-    const canvas = canvasRef.current!;
-    const ctx = canvas.getContext('2d')!;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
     const state = gameStateRef.current;
     
     // Disable anti-aliasing for pixel-perfect rendering
