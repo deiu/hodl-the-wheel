@@ -1182,6 +1182,7 @@ export default function Game() {
               <div className="text-left space-y-2">
                 <div className="text-sm text-green-400">🚗 AVOID OBSTACLES</div>
                 <div className="text-sm text-red-400">🔥 COLLECT POWERUPS</div>
+                <div className="text-sm text-blue-400">💰 COLLECT CRYPTO COINS</div>
                 <div className="text-sm text-yellow-400">⭐ SURVIVE AS LONG AS POSSIBLE</div>
               </div>
             </CardContent>
