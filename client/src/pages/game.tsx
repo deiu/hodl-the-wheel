@@ -721,7 +721,7 @@ export default function Game() {
         case 'speed':
           ctx.font = `${height}px monospace`;
           ctx.textAlign = 'center';
-          ctx.fillText('⚡', x + width/2, y + height - 2);
+          ctx.fillText('⚡️', x + width/2, y + height - 2);
           break;
         case 'invulnerability':
           const shieldImage = imagesRef.current['shield'];
@@ -844,7 +844,7 @@ export default function Game() {
         case 'speed':
           ctx.font = `${size}px monospace`;
           ctx.textAlign = 'left';
-          ctx.fillText('⚡', iconX, iconY + size - 2);
+          ctx.fillText('⚡️', iconX, iconY + size - 2);
           break;
         case 'invulnerability':
           const shieldImage = imagesRef.current['shield'];
@@ -1074,7 +1074,7 @@ export default function Game() {
                   Life: +1 Life
                 </div>
                 <div className="text-xs text-cyan-400 flex items-center gap-2">
-                  <span className="text-base">⚡</span>
+                  <span className="text-base">⚡️</span>
                   Speed: 5s Boost
                 </div>
                 <div className="text-xs text-yellow-400 flex items-center gap-2">
