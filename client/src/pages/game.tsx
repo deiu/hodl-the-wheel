@@ -26,7 +26,6 @@ interface GameObject {
 
 interface Powerup extends GameObject {
   powerupType: 'life' | 'speed' | 'invulnerability' | 'gun' | 'doublepoints';
-  spawnTime: number;
 }
 
 interface Bullet extends GameObject {
@@ -583,13 +582,15 @@ export default function Game() {
     });
 
     // Update powerups
-    state.powerups.forEach(powerup => {
+    state.powerups = state.powerups.filter(powerup => {
       powerup.y += powerup.speed;
+      return powerup.y < 800; // Remove when off-screen
     });
     
     // Update coins
-    state.coins.forEach(coin => {
+    state.coins = state.coins.filter(coin => {
       coin.y += coin.speed;
+      return coin.y < 800; // Remove when off-screen
     });
 
     // Update bullets
