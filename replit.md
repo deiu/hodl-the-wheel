@@ -21,18 +21,16 @@
 - **Development**: tsx for TypeScript execution in development
 
 ### Data Storage Solutions
-- **Primary Database**: PostgreSQL configured via Drizzle ORM
-- **Development Fallback**: In-memory storage implementation
-- **Schema Management**: Drizzle Kit for migrations and schema management
-- **Connection**: Neon Database serverless PostgreSQL adapter
+- **Local Storage**: Browser localStorage for high score persistence
+- **No Server Storage**: Game runs entirely client-side for simplicity
 
 ## Key Components
 
 ### Game Engine
 - **Canvas-based rendering**: 60 FPS game loop with requestAnimationFrame
 - **Collision detection**: AABB (Axis-Aligned Bounding Box) collision system
-- **Progressive difficulty**: Dynamic obstacle spawn rates and speeds
-- **Power-up system**: Collectible items affecting gameplay
+- **Speed progression**: Obstacle speed increases every 5 seconds
+- **Power-up system**: Collectible items providing extra lives
 
 ### User Interface
 - **Retro styling**: Press Start 2P font and 8-bit color palette
@@ -40,19 +38,19 @@
 - **Component library**: shadcn/ui for consistent UI elements
 - **Toast notifications**: User feedback for game events
 
-### API Layer
-- **High scores endpoint**: GET /api/high-scores for leaderboard
-- **Score submission**: POST /api/high-scores with validation
-- **Error handling**: Comprehensive error responses with proper HTTP status codes
-- **Type safety**: Shared schemas between frontend and backend
+### Game Logic
+- **Local high score tracking**: Browser localStorage persistence
+- **Speed scaling system**: Base speed increases every 5 seconds
+- **Lives system**: Maximum 3 lives, powerups provide extra lives
+- **Pixel-perfect collision detection**: AABB algorithm for precise gameplay
 
 ## Data Flow
 
-1. **Game Initialization**: Canvas setup, event listeners, initial game state
-2. **Game Loop**: Update positions → Check collisions → Render frame → Request next frame
-3. **Score Tracking**: Local state management with periodic server synchronization
-4. **High Score Submission**: Form validation → API request → Server persistence → UI update
-5. **Leaderboard Display**: Server query → Data transformation → Component rendering
+1. **Game Initialization**: Canvas setup, event listeners, initial game state with start time
+2. **Game Loop**: Handle input → Update positions → Check collisions → Render frame → Request next frame
+3. **Speed Management**: Calculate current obstacle speed based on elapsed time (increases every 5 seconds)
+4. **Score Tracking**: Local state management with localStorage persistence
+5. **Collision System**: AABB detection for obstacles (lose life) and powerups (gain life)
 
 ## External Dependencies
 

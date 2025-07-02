@@ -1,9 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { apiRequest, queryClient } from "@/lib/queryClient";
-import type { HighScore } from "@shared/schema";
 
 interface GameObject {
   x: number;
@@ -24,7 +21,8 @@ interface GameState {
   powerups: GameObject[];
   lastObstacleSpawn: number;
   lastPowerupSpawn: number;
-  difficulty: number;
+  gameStartTime: number;
+  baseObstacleSpeed: number;
 }
 
 export default function Game() {
@@ -40,7 +38,8 @@ export default function Game() {
     powerups: [],
     lastObstacleSpawn: 0,
     lastPowerupSpawn: 0,
-    difficulty: 1
+    gameStartTime: 0,
+    baseObstacleSpeed: 3
   });
 
   const keysRef = useRef<Record<string, boolean>>({});
@@ -50,20 +49,6 @@ export default function Game() {
   const [localHighScore, setLocalHighScore] = useState(
     parseInt(localStorage.getItem('carRushHighScore') || '0')
   );
-
-  const { data: highScores } = useQuery<HighScore[]>({
-    queryKey: ['/api/high-scores'],
-  });
-
-  const addHighScoreMutation = useMutation({
-    mutationFn: async (data: { playerName: string; score: number; createdAt: string }) => {
-      const response = await apiRequest('POST', '/api/high-scores', data);
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/high-scores'] });
-    }
-  });
 
   const updateGameState = useCallback(() => {
     setGameState({ ...gameStateRef.current });
@@ -122,10 +107,17 @@ export default function Game() {
     }
   };
 
+  const getCurrentObstacleSpeed = () => {
+    const state = gameStateRef.current;
+    const timeElapsed = Date.now() - state.gameStartTime;
+    const speedIncreases = Math.floor(timeElapsed / 5000); // Every 5 seconds
+    return state.baseObstacleSpeed + speedIncreases;
+  };
+
   const spawnObstacle = () => {
     const now = Date.now();
     const state = gameStateRef.current;
-    const spawnRate = Math.max(500 - (state.difficulty * 50), 100);
+    const spawnRate = 800; // Fixed spawn rate
     
     if (now - state.lastObstacleSpawn > spawnRate) {
       state.obstacles.push({
@@ -133,7 +125,7 @@ export default function Game() {
         y: -80,
         width: 60,
         height: 80,
-        speed: 3 + (state.difficulty * 0.5)
+        speed: getCurrentObstacleSpeed()
       });
       state.lastObstacleSpawn = now;
     }
@@ -158,7 +150,11 @@ export default function Game() {
   const updateGameObjects = () => {
     const state = gameStateRef.current;
     
-    // Update obstacles
+    // Update obstacles - all obstacles now move at the current speed
+    state.obstacles.forEach(obstacle => {
+      obstacle.speed = getCurrentObstacleSpeed();
+    });
+    
     state.obstacles = state.obstacles.filter(obstacle => {
       obstacle.y += obstacle.speed;
       return obstacle.y < 600;
@@ -169,9 +165,6 @@ export default function Game() {
       powerup.y += powerup.speed;
       return powerup.y < 600;
     });
-
-    // Increase difficulty over time
-    state.difficulty = Math.floor(state.score / 1000) + 1;
   };
 
   const checkCollisions = () => {
@@ -284,7 +277,8 @@ export default function Game() {
     state.obstacles = [];
     state.powerups = [];
     state.player = { x: 375, y: 500, width: 50, height: 80, speed: 5 };
-    state.difficulty = 1;
+    state.gameStartTime = Date.now();
+    state.baseObstacleSpeed = 3;
     updateGameState();
     gameLoop();
   };
@@ -312,15 +306,6 @@ export default function Game() {
     if (state.score > localHighScore) {
       setLocalHighScore(state.score);
       localStorage.setItem('carRushHighScore', state.score.toString());
-    }
-
-    // Submit high score to server
-    if (state.score > 0) {
-      addHighScoreMutation.mutate({
-        playerName: 'Anonymous',
-        score: state.score,
-        createdAt: new Date().toISOString()
-      });
     }
 
     updateGameState();
