@@ -1067,10 +1067,26 @@ export default function Game() {
             <CardContent className="p-4">
               <div className="text-sm text-white mb-4">POWERUPS</div>
               <div className="grid grid-cols-2 gap-2 text-left">
-                <div className="text-xs text-pink-400">♥ Life: +1 Life</div>
-                <div className="text-xs text-cyan-400">⚡ Speed: 5s Boost</div>
-                <div className="text-xs text-yellow-400">🛡 Shield: 3s Invulnerable</div>
-                <div className="text-xs text-red-400">🔫 Gun: 5s Shooting</div>
+                <div className="text-xs text-pink-400 flex items-center gap-2">
+                  <img src={heartIcon} alt="Life" className="w-4 h-4" />
+                  Life: +1 Life
+                </div>
+                <div className="text-xs text-cyan-400 flex items-center gap-2">
+                  <img src={lightningIcon} alt="Speed" className="w-3 h-4" />
+                  Speed: 5s Boost
+                </div>
+                <div className="text-xs text-yellow-400 flex items-center gap-2">
+                  <img src={shieldIcon} alt="Shield" className="w-4 h-4" />
+                  Shield: 3s Invulnerable
+                </div>
+                <div className="text-xs text-red-400 flex items-center gap-2">
+                  <img src={gunIcon} alt="Gun" className="w-4 h-4" />
+                  Gun: 5s Shooting
+                </div>
+                <div className="text-xs text-purple-400 flex items-center gap-2 col-span-2 justify-center">
+                  <img src={expIcon} alt="Double Points" className="w-4 h-4" />
+                  Double Points: 10s 2x Score
+                </div>
               </div>
             </CardContent>
           </Card>

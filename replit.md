@@ -140,6 +140,11 @@ Changelog:
   * Changed top bar from flex justify-between to 3-column grid layout
   * Lives, Score, and High Score indicators now equally spaced and centered
   * Improved visual balance with consistent spacing across all three sections
+- July 02, 2025. Start page powerup icons enhancement
+  * Replaced emoji icons with actual game powerup PNG images on start page
+  * Added missing double points powerup description with star icon
+  * Improved visual consistency between start page and in-game powerup representations
+  * Used proper icon sizing to match the retro 8-bit aesthetic
 ```
 
 ## User Preferences
