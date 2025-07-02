@@ -9,9 +9,10 @@ import backgroundMusic from "@assets/SLOWER-TEMPO2019-12-11_-_Retro_Platforming_
 import shootSound from "@assets/8-bit-shoot_1751479421238.mp3";
 import powerupSound from "@assets/8-bit-powerup_1751479421239.mp3";
 import heartIcon from "@assets/life_1751481001186.png";
-import lightningIcon from "@assets/speed_1751481001186.png";
+import lightningIcon from "@assets/speed_1751483372853.png";
 import shieldIcon from "@assets/shield_1751481001186.png";
 import gunIcon from "@assets/gun_1751481001186.png";
+import expIcon from "@assets/exp_1751483372853.png";
 
 interface GameObject {
   x: number;
@@ -154,7 +155,8 @@ export default function Game() {
         { key: 'heart', src: heartIcon },
         { key: 'lightning', src: lightningIcon },
         { key: 'shield', src: shieldIcon },
-        { key: 'gun', src: gunIcon }
+        { key: 'gun', src: gunIcon },
+        { key: 'exp', src: expIcon }
       ].map(({ key, src }) => {
         return new Promise<void>((resolve) => {
           const img = new Image();
@@ -388,7 +390,7 @@ export default function Game() {
       const randomType = carTypes[Math.floor(Math.random() * carTypes.length)];
       
       state.obstacles.push({
-        x: Math.random() * (800 - 60),
+        x: Math.random() * (1200 - 60),
         y: -80,
         width: 60,
         height: 80,
@@ -408,7 +410,7 @@ export default function Game() {
       const randomType = powerupTypes[Math.floor(Math.random() * powerupTypes.length)];
       
       state.powerups.push({
-        x: Math.random() * (800 - 40),
+        x: Math.random() * (1200 - 40),
         y: -40,
         width: 40,
         height: 40,
@@ -476,7 +478,7 @@ export default function Game() {
     
     state.obstacles = state.obstacles.filter(obstacle => {
       obstacle.y += obstacle.speed;
-      return obstacle.y < 600;
+      return obstacle.y < 800;
     });
 
     // Update powerups
@@ -679,7 +681,7 @@ export default function Game() {
           imageKey = 'gun';
           break;
         case 'doublepoints':
-          imageKey = 'lightning'; // Use lightning icon for double points
+          imageKey = 'exp'; // Use exp icon for double points
           break;
       }
       
@@ -767,7 +769,7 @@ export default function Game() {
           imageKey = 'gun';
           break;
         case 'doublepoints':
-          imageKey = 'lightning';
+          imageKey = 'exp';
           break;
       }
       
@@ -807,7 +809,7 @@ export default function Game() {
     if (now < state.doublePointsEndTime) {
       const timeLeft = Math.ceil((state.doublePointsEndTime - now) / 1000);
       const iconX = player.x + player.width / 2 - 40;
-      drawPowerupIcon(iconX, timerY, 'speed'); // Use speed icon for double points
+      drawPowerupIcon(iconX, timerY, 'doublepoints'); // Use exp icon for double points
       ctx.fillStyle = '#FF1493';
       ctx.fillText(`2X ${timeLeft}s`, iconX + 25, timerY - 4);
     }
@@ -843,7 +845,7 @@ export default function Game() {
     state.explosions = [];
     state.scorePopups = [];
     state.particles = [];
-    state.player = { x: 375, y: 500, width: 50, height: 80, speed: 5, type: 'mycar' };
+    state.player = { x: 575, y: 700, width: 50, height: 80, speed: 5, type: 'mycar' };
     state.gameStartTime = Date.now();
     state.baseObstacleSpeed = 3;
     state.speedBoostEndTime = 0;
@@ -990,9 +992,9 @@ export default function Game() {
       {/* Game Canvas */}
       <canvas 
         ref={canvasRef}
-        className="border-4 border-white"
-        width="800" 
-        height="600"
+        className="border-4 border-white w-full h-full max-w-none"
+        width="1200" 
+        height="800"
         style={{ imageRendering: 'pixelated' }}
       />
       

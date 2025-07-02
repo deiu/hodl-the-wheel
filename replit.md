@@ -113,6 +113,11 @@ Changelog:
   * Added 3-second countdown when resuming from pause
   * Enhanced UI with real-time combo and streak displays
   * All powerup icons now use professional PNG assets with transparency
+- July 02, 2025. Game screen expansion and icon updates
+  * Increased canvas size from 800x600 to 1200x800 for better gameplay experience
+  * Updated game boundaries and spawn positions for larger playing field
+  * Replaced speed powerup icon with new speed bolt design
+  * Added dedicated exp star icon for double points powerup
 ```
 
 ## User Preferences
