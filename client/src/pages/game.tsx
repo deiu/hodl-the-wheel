@@ -944,7 +944,12 @@ export default function Game() {
     state.screenShake = 0;
     state.resumeCountdown = 0;
     updateGameState();
-    startMusic();
+    
+    // Only start music if user preference is enabled
+    if (isMusicPlaying) {
+      startMusic();
+    }
+    
     gameLoop();
   };
 

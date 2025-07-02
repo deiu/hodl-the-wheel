@@ -133,6 +133,9 @@ Changelog:
   * Fixed powerup status descriptions to be perfectly centered on full page width
   * Increased powerup spawn rate by 50% (from 8 seconds to 5.33 seconds) for more frequent powerup generation
   * Multiple powerups can now appear simultaneously on screen for enhanced gameplay
+- July 02, 2025. Music settings persistence fix
+  * Fixed music settings to properly persist when starting new games after dying
+  * Music now respects user's ON/OFF preference stored in localStorage across game sessions
 ```
 
 ## User Preferences
