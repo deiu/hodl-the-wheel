@@ -153,6 +153,10 @@ Changelog:
   * Changed shield powerup name from "Shield: 3s Invulnerable" to "Warden Protection"
   * Updated both start page description and in-game status indicator
   * Improved thematic consistency with fantasy/RPG naming convention
+- July 02, 2025. Double points powerup display enhancement
+  * Changed timer display from "2X" to "2x EXP" near player car
+  * Enhanced clarity by explicitly showing this affects experience/score points
+  * Maintains consistent visual styling with pink color and countdown timer
 ```
 
 ## User Preferences

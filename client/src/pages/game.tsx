@@ -895,7 +895,7 @@ export default function Game() {
       const iconX = player.x + player.width / 2 - 40;
       drawPowerupIcon(iconX, timerY, 'doublepoints'); // Use exp icon for double points
       ctx.fillStyle = '#FF1493';
-      ctx.fillText(`2X ${timeLeft}s`, iconX + 25, timerY - 4);
+      ctx.fillText(`2x EXP ${timeLeft}s`, iconX + 25, timerY - 4);
     }
   };
 
