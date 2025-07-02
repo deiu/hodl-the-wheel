@@ -1104,6 +1104,26 @@ export default function Game() {
     }, 1000);
   };
 
+  const quitToMainMenu = () => {
+    const state = gameStateRef.current;
+    state.isRunning = false;
+    state.isPaused = false;
+    state.gameStarted = false;
+    
+    // Stop music if playing
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+    
+    // Cancel animation frame
+    if (animationIdRef.current) {
+      cancelAnimationFrame(animationIdRef.current);
+    }
+    
+    updateGameState();
+  };
+
   const gameOver = () => {
     const state = gameStateRef.current;
     const player = state.player;
@@ -1367,6 +1387,14 @@ export default function Game() {
                   variant="outline"
                 >
                   {isMusicPlaying ? '🔊 MUSIC: ON' : '🔇 MUSIC: OFF'}
+                </Button>
+                
+                <Button 
+                  onClick={quitToMainMenu}
+                  className="retro-button text-sm"
+                  variant="destructive"
+                >
+                  QUIT TO MAIN MENU
                 </Button>
               </div>
             </CardContent>
