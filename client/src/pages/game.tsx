@@ -5,6 +5,7 @@ import blueCar from "@assets/blue_1751475426603.png";
 import greenCar from "@assets/green_1751475426603.png";
 import redCar from "@assets/red_1751475426603.png";
 import myCar from "@assets/mycar_1751475557453.png";
+import backgroundMusic from "@assets/SLOWER-TEMPO2019-12-11_-_Retro_Platforming_-_David_Fesliyan_1751478645287.mp3";
 
 interface GameObject {
   x: number;
@@ -47,7 +48,9 @@ interface GameState {
 export default function Game() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imagesRef = useRef<Record<string, HTMLImageElement>>({});
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const [imagesLoaded, setImagesLoaded] = useState(false);
+  const [isMusicPlaying, setIsMusicPlaying] = useState(false);
   
   const gameStateRef = useRef<GameState>({
     isRunning: false,
@@ -77,7 +80,7 @@ export default function Game() {
     parseInt(localStorage.getItem('carRushHighScore') || '0')
   );
 
-  // Load car images
+  // Load car images and initialize audio
   useEffect(() => {
     const loadImages = async () => {
       const imagePromises = [
@@ -100,12 +103,48 @@ export default function Game() {
       setImagesLoaded(true);
     };
 
+    // Initialize background music
+    const initializeAudio = () => {
+      const audio = new Audio(backgroundMusic);
+      audio.loop = true;
+      audio.volume = 0.5;
+      audioRef.current = audio;
+    };
+
     loadImages();
+    initializeAudio();
   }, []);
 
   const updateGameState = useCallback(() => {
     setGameState({ ...gameStateRef.current });
   }, []);
+
+  const toggleMusic = useCallback(() => {
+    if (audioRef.current) {
+      if (isMusicPlaying) {
+        audioRef.current.pause();
+        setIsMusicPlaying(false);
+      } else {
+        audioRef.current.play().catch(e => console.log('Could not play audio:', e));
+        setIsMusicPlaying(true);
+      }
+    }
+  }, [isMusicPlaying]);
+
+  const startMusic = useCallback(() => {
+    if (audioRef.current && !isMusicPlaying) {
+      audioRef.current.play().catch(e => console.log('Could not play audio:', e));
+      setIsMusicPlaying(true);
+    }
+  }, [isMusicPlaying]);
+
+  const stopMusic = useCallback(() => {
+    if (audioRef.current && isMusicPlaying) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      setIsMusicPlaying(false);
+    }
+  }, [isMusicPlaying]);
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     keysRef.current[e.key.toLowerCase()] = true;
@@ -382,51 +421,56 @@ export default function Game() {
       }
     });
 
-    // Draw powerups with bigger, consistent icons
+    // Draw powerups with consistent pixel art icons
     state.powerups.forEach(powerup => {
       const { x, y, width, height, powerupType } = powerup;
       
-      // Background circle for all powerups
+      // Background for all powerups
       ctx.fillStyle = '#000000';
       ctx.fillRect(x, y, width, height);
       ctx.fillStyle = '#FFFFFF';
       ctx.fillRect(x + 2, y + 2, width - 4, height - 4);
       
+      // Scale factor for pickup icons (larger than timer icons)
+      const scale = 1.5;
+      const baseSize = 32;
+      const iconSize = baseSize * scale;
+      const offsetX = (width - iconSize) / 2;
+      const offsetY = (height - iconSize) / 2;
+      const iconX = x + offsetX;
+      const iconY = y + offsetY;
+      
       switch (powerupType) {
         case 'life':
-          // Draw bigger heart icon
           ctx.fillStyle = '#FF1493';
-          ctx.fillRect(x + 12, y + 10, 12, 8);
-          ctx.fillRect(x + 26, y + 10, 12, 8);
-          ctx.fillRect(x + 10, y + 16, 30, 14);
-          ctx.fillRect(x + 12, y + 30, 26, 10);
-          ctx.fillRect(x + 16, y + 40, 18, 6);
-          ctx.fillRect(x + 20, y + 46, 10, 2);
+          ctx.fillRect(iconX + 6 * scale, iconY + 5 * scale, 6 * scale, 4 * scale);
+          ctx.fillRect(iconX + 14 * scale, iconY + 5 * scale, 6 * scale, 4 * scale);
+          ctx.fillRect(iconX + 4 * scale, iconY + 8 * scale, 18 * scale, 8 * scale);
+          ctx.fillRect(iconX + 6 * scale, iconY + 16 * scale, 14 * scale, 6 * scale);
+          ctx.fillRect(iconX + 8 * scale, iconY + 22 * scale, 10 * scale, 4 * scale);
+          ctx.fillRect(iconX + 10 * scale, iconY + 26 * scale, 6 * scale, 2 * scale);
           break;
         case 'speed':
-          // Draw bigger lightning bolt
           ctx.fillStyle = '#00FFFF';
-          ctx.fillRect(x + 18, y + 8, 14, 42);
-          ctx.fillRect(x + 12, y + 18, 20, 8);
-          ctx.fillRect(x + 20, y + 36, 20, 8);
+          ctx.fillRect(iconX + 10 * scale, iconY + 4 * scale, 8 * scale, 24 * scale);
+          ctx.fillRect(iconX + 6 * scale, iconY + 10 * scale, 12 * scale, 4 * scale);
+          ctx.fillRect(iconX + 12 * scale, iconY + 20 * scale, 12 * scale, 4 * scale);
           break;
         case 'invulnerability':
-          // Draw bigger shield
           ctx.fillStyle = '#FFD700';
-          ctx.fillRect(x + 10, y + 10, 30, 30);
+          ctx.fillRect(iconX + 4 * scale, iconY + 4 * scale, 18 * scale, 18 * scale);
           ctx.fillStyle = '#FFA500';
-          ctx.fillRect(x + 14, y + 14, 22, 22);
+          ctx.fillRect(iconX + 7 * scale, iconY + 7 * scale, 12 * scale, 12 * scale);
           ctx.fillStyle = '#FFD700';
-          ctx.fillRect(x + 18, y + 18, 14, 14);
+          ctx.fillRect(iconX + 9 * scale, iconY + 9 * scale, 8 * scale, 8 * scale);
           break;
         case 'gun':
-          // Draw bigger gun icon
           ctx.fillStyle = '#8B4513';
-          ctx.fillRect(x + 14, y + 20, 24, 10);
-          ctx.fillRect(x + 36, y + 22, 10, 6);
-          ctx.fillRect(x + 12, y + 28, 8, 14);
+          ctx.fillRect(iconX + 6 * scale, iconY + 12 * scale, 14 * scale, 6 * scale);
+          ctx.fillRect(iconX + 18 * scale, iconY + 14 * scale, 6 * scale, 2 * scale);
+          ctx.fillRect(iconX + 4 * scale, iconY + 16 * scale, 4 * scale, 8 * scale);
           ctx.fillStyle = '#A0522D';
-          ctx.fillRect(x + 16, y + 22, 20, 6);
+          ctx.fillRect(iconX + 8 * scale, iconY + 14 * scale, 10 * scale, 2 * scale);
           break;
       }
     });
@@ -444,31 +488,83 @@ export default function Game() {
       ctx.strokeRect(player.x - 2, player.y - 2, player.width + 4, player.height + 4);
     }
 
-    // Draw powerup timers below player car with larger text and icons
+    // Draw powerup timers below player car with pixel art icons
     const now = Date.now();
-    let timerY = player.y + player.height + 15;
+    let timerY = player.y + player.height + 20;
     
-    ctx.font = '14px monospace';
-    ctx.textAlign = 'center';
+    ctx.font = '16px monospace';
+    ctx.textAlign = 'left';
+    
+    const drawPowerupIcon = (x: number, y: number, type: 'life' | 'speed' | 'invulnerability' | 'gun', scale = 0.6) => {
+      const size = 32 * scale;
+      const iconX = x;
+      const iconY = y - size + 4;
+      
+      // Background
+      ctx.fillStyle = '#000000';
+      ctx.fillRect(iconX, iconY, size, size);
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(iconX + 1, iconY + 1, size - 2, size - 2);
+      
+      switch (type) {
+        case 'life':
+          ctx.fillStyle = '#FF1493';
+          ctx.fillRect(iconX + 6, iconY + 5, 6, 4);
+          ctx.fillRect(iconX + 14, iconY + 5, 6, 4);
+          ctx.fillRect(iconX + 4, iconY + 8, 18, 8);
+          ctx.fillRect(iconX + 6, iconY + 16, 14, 6);
+          ctx.fillRect(iconX + 8, iconY + 22, 10, 4);
+          ctx.fillRect(iconX + 10, iconY + 26, 6, 2);
+          break;
+        case 'speed':
+          ctx.fillStyle = '#00FFFF';
+          ctx.fillRect(iconX + 10, iconY + 4, 8, 24);
+          ctx.fillRect(iconX + 6, iconY + 10, 12, 4);
+          ctx.fillRect(iconX + 12, iconY + 20, 12, 4);
+          break;
+        case 'invulnerability':
+          ctx.fillStyle = '#FFD700';
+          ctx.fillRect(iconX + 4, iconY + 4, 18, 18);
+          ctx.fillStyle = '#FFA500';
+          ctx.fillRect(iconX + 7, iconY + 7, 12, 12);
+          ctx.fillStyle = '#FFD700';
+          ctx.fillRect(iconX + 9, iconY + 9, 8, 8);
+          break;
+        case 'gun':
+          ctx.fillStyle = '#8B4513';
+          ctx.fillRect(iconX + 6, iconY + 12, 14, 6);
+          ctx.fillRect(iconX + 18, iconY + 14, 6, 2);
+          ctx.fillRect(iconX + 4, iconY + 16, 4, 8);
+          ctx.fillStyle = '#A0522D';
+          ctx.fillRect(iconX + 8, iconY + 14, 10, 2);
+          break;
+      }
+    };
     
     if (now < state.speedBoostEndTime) {
       const timeLeft = Math.ceil((state.speedBoostEndTime - now) / 1000);
+      const iconX = player.x + player.width / 2 - 40;
+      drawPowerupIcon(iconX, timerY, 'speed');
       ctx.fillStyle = '#00FFFF';
-      ctx.fillText(`⚡ ${timeLeft}s`, player.x + player.width / 2, timerY);
-      timerY += 18;
+      ctx.fillText(`${timeLeft}s`, iconX + 25, timerY - 4);
+      timerY += 24;
     }
     
     if (now < state.invulnerabilityEndTime) {
       const timeLeft = Math.ceil((state.invulnerabilityEndTime - now) / 1000);
+      const iconX = player.x + player.width / 2 - 40;
+      drawPowerupIcon(iconX, timerY, 'invulnerability');
       ctx.fillStyle = '#FFD700';
-      ctx.fillText(`🛡 ${timeLeft}s`, player.x + player.width / 2, timerY);
-      timerY += 18;
+      ctx.fillText(`${timeLeft}s`, iconX + 25, timerY - 4);
+      timerY += 24;
     }
     
     if (now < state.gunEndTime) {
       const timeLeft = Math.ceil((state.gunEndTime - now) / 1000);
+      const iconX = player.x + player.width / 2 - 40;
+      drawPowerupIcon(iconX, timerY, 'gun');
       ctx.fillStyle = '#FF6B6B';
-      ctx.fillText(`🔫 ${timeLeft}s`, player.x + player.width / 2, timerY);
+      ctx.fillText(`${timeLeft}s`, iconX + 25, timerY - 4);
     }
   };
 
@@ -509,12 +605,16 @@ export default function Game() {
     state.gunEndTime = 0;
     state.originalPlayerSpeed = 5;
     updateGameState();
+    startMusic();
     gameLoop();
   };
 
   const pauseGame = () => {
     const state = gameStateRef.current;
     state.isPaused = true;
+    if (audioRef.current && isMusicPlaying) {
+      audioRef.current.pause();
+    }
     updateGameState();
     if (animationIdRef.current) {
       cancelAnimationFrame(animationIdRef.current);
@@ -524,6 +624,9 @@ export default function Game() {
   const resumeGame = () => {
     const state = gameStateRef.current;
     state.isPaused = false;
+    if (audioRef.current && isMusicPlaying) {
+      audioRef.current.play().catch(e => console.log('Could not resume audio:', e));
+    }
     updateGameState();
     gameLoop();
   };
@@ -537,6 +640,7 @@ export default function Game() {
       localStorage.setItem('carRushHighScore', state.score.toString());
     }
 
+    stopMusic();
     updateGameState();
     if (animationIdRef.current) {
       cancelAnimationFrame(animationIdRef.current);
@@ -595,12 +699,22 @@ export default function Game() {
             </CardContent>
           </Card>
           
-          <Button 
-            onClick={startGame}
-            className="retro-button text-lg"
-          >
-            START GAME
-          </Button>
+          <div className="space-y-4">
+            <Button 
+              onClick={startGame}
+              className="retro-button text-lg"
+            >
+              START GAME
+            </Button>
+            
+            <Button 
+              onClick={toggleMusic}
+              className="retro-button text-sm"
+              variant="outline"
+            >
+              {isMusicPlaying ? '🔊 MUSIC: ON' : '🔇 MUSIC: OFF'}
+            </Button>
+          </div>
         </div>
       </div>
     );
@@ -697,9 +811,19 @@ export default function Game() {
           <Card className="bg-black border-4 border-white p-8">
             <CardContent className="text-center">
               <div className="pixel-font text-2xl text-yellow-400 mb-6">PAUSED</div>
-              <Button onClick={resumeGame} className="retro-button">
-                RESUME
-              </Button>
+              <div className="space-y-4">
+                <Button onClick={resumeGame} className="retro-button">
+                  RESUME
+                </Button>
+                
+                <Button 
+                  onClick={toggleMusic}
+                  className="retro-button text-sm"
+                  variant="outline"
+                >
+                  {isMusicPlaying ? '🔊 MUSIC: ON' : '🔇 MUSIC: OFF'}
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </div>
