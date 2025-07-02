@@ -118,6 +118,12 @@ Changelog:
   * Updated game boundaries and spawn positions for larger playing field
   * Replaced speed powerup icon with new speed bolt design
   * Added dedicated exp star icon for double points powerup
+- July 02, 2025. Enhanced destruction effects and powerup improvements
+  * Fixed powerup icon aspect ratios to respect original designs
+  * Added multi-layered explosion effects with colored rings and flash centers
+  * Implemented car debris particle system for realistic destruction
+  * Enhanced screen shake and multiple particle colors for dramatic impact
+  * Increased explosion radius and added secondary delayed explosions
 ```
 
 ## User Preferences

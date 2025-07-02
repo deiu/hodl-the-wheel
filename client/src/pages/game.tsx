@@ -309,13 +309,13 @@ export default function Game() {
   };
 
   // Visual effect functions
-  const createExplosion = (x: number, y: number) => {
+  const createExplosion = (x: number, y: number, maxRadius = 50) => {
     const state = gameStateRef.current;
     state.explosions.push({
       x: x,
       y: y,
       radius: 0,
-      maxRadius: 40,
+      maxRadius: maxRadius,
       alpha: 1,
       startTime: Date.now()
     });
@@ -343,6 +343,28 @@ export default function Game() {
         vy: (Math.random() - 0.5) * 4,
         life: 60,
         maxLife: 60,
+        color: color
+      });
+    }
+  };
+
+  const createDebrisParticles = (x: number, y: number) => {
+    const state = gameStateRef.current;
+    const debrisColors = ['#333333', '#666666', '#999999', '#FF6B6B', '#FFA500'];
+    
+    // Create car debris particles
+    for (let i = 0; i < 20; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 3 + Math.random() * 6;
+      const color = debrisColors[Math.floor(Math.random() * debrisColors.length)];
+      
+      state.particles.push({
+        x: x + (Math.random() - 0.5) * 30,
+        y: y + (Math.random() - 0.5) * 30,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed - Math.random() * 2, // Slight upward bias
+        life: 80 + Math.random() * 40,
+        maxLife: 80 + Math.random() * 40,
         color: color
       });
     }
@@ -409,11 +431,21 @@ export default function Game() {
       const powerupTypes: ('life' | 'speed' | 'invulnerability' | 'gun' | 'doublepoints')[] = ['life', 'speed', 'invulnerability', 'gun', 'doublepoints'];
       const randomType = powerupTypes[Math.floor(Math.random() * powerupTypes.length)];
       
+      // Set dimensions based on powerup type to maintain aspect ratio
+      let width = 40, height = 40;
+      if (randomType === 'speed') {
+        width = 32; // Narrower for the diagonal lightning bolt
+        height = 48; // Taller to match the diagonal shape
+      } else if (randomType === 'doublepoints') {
+        width = 40; // Square for the star
+        height = 40;
+      }
+      
       state.powerups.push({
-        x: Math.random() * (1200 - 40),
-        y: -40,
-        width: 40,
-        height: 40,
+        x: Math.random() * (1200 - width),
+        y: -height,
+        width: width,
+        height: height,
         speed: 2,
         powerupType: randomType
       });
@@ -577,8 +609,17 @@ export default function Game() {
           
           addScore(totalPoints, obstacle.x + obstacle.width/2, obstacle.y + obstacle.height/2);
           createExplosion(obstacle.x + obstacle.width/2, obstacle.y + obstacle.height/2);
-          createParticles(obstacle.x + obstacle.width/2, obstacle.y + obstacle.height/2, '#FFD700', 10);
-          addScreenShake(3);
+          createParticles(obstacle.x + obstacle.width/2, obstacle.y + obstacle.height/2, '#FFD700', 15);
+          createParticles(obstacle.x + obstacle.width/2, obstacle.y + obstacle.height/2, '#FF6B6B', 8);
+          createParticles(obstacle.x + obstacle.width/2, obstacle.y + obstacle.height/2, '#FFA500', 12);
+          createDebrisParticles(obstacle.x + obstacle.width/2, obstacle.y + obstacle.height/2);
+          addScreenShake(6);
+          
+          // Create multiple explosions for enhanced effect
+          setTimeout(() => {
+            createExplosion(obstacle.x + obstacle.width/2 + (Math.random() - 0.5) * 20, 
+                          obstacle.y + obstacle.height/2 + (Math.random() - 0.5) * 20);
+          }, 100);
           
           return false;
         }
@@ -704,24 +745,54 @@ export default function Game() {
       ctx.strokeRect(player.x - 2, player.y - 2, player.width + 4, player.height + 4);
     }
 
-    // Draw explosions
+    // Draw explosions with enhanced effects
     state.explosions.forEach(explosion => {
+      const progress = explosion.radius / explosion.maxRadius;
+      
       ctx.save();
       ctx.globalAlpha = explosion.alpha;
-      ctx.strokeStyle = '#FFD700';
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.arc(explosion.x, explosion.y, explosion.radius, 0, Math.PI * 2);
-      ctx.stroke();
+      
+      // Draw multiple colored rings for more dramatic effect
+      const colors = ['#FF6B6B', '#FFA500', '#FFD700', '#FF1493'];
+      colors.forEach((color, index) => {
+        const ringRadius = explosion.radius - (index * 8);
+        if (ringRadius > 0) {
+          ctx.strokeStyle = color;
+          ctx.lineWidth = 4 - index;
+          ctx.beginPath();
+          ctx.arc(explosion.x, explosion.y, ringRadius, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+      });
+      
+      // Add a filled center flash effect for early explosion
+      if (progress < 0.3) {
+        ctx.fillStyle = '#FFFFFF';
+        ctx.globalAlpha = (0.3 - progress) / 0.3 * 0.8;
+        ctx.beginPath();
+        ctx.arc(explosion.x, explosion.y, explosion.radius * 0.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      
       ctx.restore();
     });
     
-    // Draw particles
+    // Draw particles with enhanced debris effects
     state.particles.forEach(particle => {
       ctx.save();
       ctx.globalAlpha = particle.life / particle.maxLife;
       ctx.fillStyle = particle.color;
-      ctx.fillRect(particle.x - 1, particle.y - 1, 2, 2);
+      
+      // Make debris particles larger and more varied
+      if (particle.color.includes('#333') || particle.color.includes('#666') || particle.color.includes('#999')) {
+        // Debris particles - make them rectangular like car parts
+        const size = 2 + Math.random() * 3;
+        ctx.fillRect(particle.x - size/2, particle.y - size/2, size, size * 1.5);
+      } else {
+        // Regular explosion particles
+        ctx.fillRect(particle.x - 1, particle.y - 1, 2, 2);
+      }
+      
       ctx.restore();
     });
     
