@@ -8,6 +8,10 @@ import myCar from "@assets/mycar_1751475557453.png";
 import backgroundMusic from "@assets/SLOWER-TEMPO2019-12-11_-_Retro_Platforming_-_David_Fesliyan_1751478645287.mp3";
 import shootSound from "@assets/8-bit-shoot_1751479421238.mp3";
 import powerupSound from "@assets/8-bit-powerup_1751479421239.mp3";
+import heartIcon from "@assets/heart_1751479980027.png";
+import lightningIcon from "@assets/lightning_1751479980027.png";
+import shieldIcon from "@assets/shield_1751479980027.jpg";
+import gunIcon from "@assets/gun_1751479980026.png";
 
 interface GameObject {
   x: number;
@@ -94,7 +98,11 @@ export default function Game() {
         { key: 'red', src: redCar },
         { key: 'blue', src: blueCar },
         { key: 'green', src: greenCar },
-        { key: 'mycar', src: myCar }
+        { key: 'mycar', src: myCar },
+        { key: 'heart', src: heartIcon },
+        { key: 'lightning', src: lightningIcon },
+        { key: 'shield', src: shieldIcon },
+        { key: 'gun', src: gunIcon }
       ].map(({ key, src }) => {
         return new Promise<void>((resolve) => {
           const img = new Image();
@@ -455,7 +463,7 @@ export default function Game() {
       }
     });
 
-    // Draw powerups with consistent pixel art icons
+    // Draw powerups with image icons
     state.powerups.forEach(powerup => {
       const { x, y, width, height, powerupType } = powerup;
       
@@ -465,49 +473,29 @@ export default function Game() {
       ctx.fillStyle = '#FFFFFF';
       ctx.fillRect(x + 2, y + 2, width - 4, height - 4);
       
-      // Scale factor for pickup icons (larger than timer icons)
-      const scale = 1.5;
-      const baseSize = 32;
-      const iconSize = baseSize * scale;
-      const offsetX = (width - iconSize) / 2;
-      const offsetY = (height - iconSize) / 2;
-      const iconX = x + offsetX;
-      const iconY = y + offsetY;
-      
+      // Draw the appropriate powerup image
+      let imageKey = '';
       switch (powerupType) {
         case 'life':
-          // Draw heart shape
-          ctx.fillStyle = '#FF1493';
-          ctx.fillRect(iconX + 6 * scale, iconY + 8 * scale, 6 * scale, 4 * scale); // left heart lobe
-          ctx.fillRect(iconX + 14 * scale, iconY + 8 * scale, 6 * scale, 4 * scale); // right heart lobe
-          ctx.fillRect(iconX + 4 * scale, iconY + 12 * scale, 18 * scale, 8 * scale); // upper body
-          ctx.fillRect(iconX + 6 * scale, iconY + 20 * scale, 14 * scale, 6 * scale); // middle body
-          ctx.fillRect(iconX + 8 * scale, iconY + 26 * scale, 10 * scale, 4 * scale); // lower body
-          ctx.fillRect(iconX + 10 * scale, iconY + 30 * scale, 6 * scale, 2 * scale); // tip
+          imageKey = 'heart';
           break;
         case 'speed':
-          // Draw arrow pointing right
-          ctx.fillStyle = '#00FFFF';
-          ctx.fillRect(iconX + 4 * scale, iconY + 12 * scale, 16 * scale, 8 * scale); // arrow body
-          ctx.fillRect(iconX + 16 * scale, iconY + 8 * scale, 8 * scale, 16 * scale); // arrow head
-          ctx.fillRect(iconX + 20 * scale, iconY + 12 * scale, 4 * scale, 8 * scale); // arrow tip
+          imageKey = 'lightning';
           break;
         case 'invulnerability':
-          // Draw diamond shield
-          ctx.fillStyle = '#FFD700';
-          ctx.fillRect(iconX + 12 * scale, iconY + 4 * scale, 8 * scale, 8 * scale); // top
-          ctx.fillRect(iconX + 8 * scale, iconY + 8 * scale, 16 * scale, 8 * scale); // middle
-          ctx.fillRect(iconX + 4 * scale, iconY + 12 * scale, 24 * scale, 8 * scale); // center
-          ctx.fillRect(iconX + 8 * scale, iconY + 16 * scale, 16 * scale, 8 * scale); // lower middle
-          ctx.fillRect(iconX + 12 * scale, iconY + 20 * scale, 8 * scale, 8 * scale); // bottom
+          imageKey = 'shield';
           break;
         case 'gun':
-          // Draw simplified gun shape
-          ctx.fillStyle = '#FF6B6B';
-          ctx.fillRect(iconX + 4 * scale, iconY + 12 * scale, 20 * scale, 8 * scale); // gun body
-          ctx.fillRect(iconX + 20 * scale, iconY + 8 * scale, 8 * scale, 16 * scale); // grip
-          ctx.fillRect(iconX + 24 * scale, iconY + 14 * scale, 4 * scale, 4 * scale); // barrel
+          imageKey = 'gun';
           break;
+      }
+      
+      const powerupImage = imagesRef.current[imageKey];
+      if (powerupImage) {
+        const iconSize = width - 8; // Leave some padding
+        const iconX = x + 4;
+        const iconY = y + 4;
+        ctx.drawImage(powerupImage, iconX, iconY, iconSize, iconSize);
       }
     });
 
@@ -542,40 +530,27 @@ export default function Game() {
       ctx.fillStyle = '#FFFFFF';
       ctx.fillRect(iconX + 1, iconY + 1, size - 2, size - 2);
       
+      // Draw the appropriate powerup image
+      let imageKey = '';
       switch (type) {
         case 'life':
-          // Draw heart shape
-          ctx.fillStyle = '#FF1493';
-          ctx.fillRect(iconX + 6, iconY + 8, 6, 4); // left heart lobe
-          ctx.fillRect(iconX + 14, iconY + 8, 6, 4); // right heart lobe
-          ctx.fillRect(iconX + 4, iconY + 12, 18, 8); // upper body
-          ctx.fillRect(iconX + 6, iconY + 20, 14, 6); // middle body
-          ctx.fillRect(iconX + 8, iconY + 26, 10, 4); // lower body
-          ctx.fillRect(iconX + 10, iconY + 30, 6, 2); // tip
+          imageKey = 'heart';
           break;
         case 'speed':
-          // Draw arrow pointing right
-          ctx.fillStyle = '#00FFFF';
-          ctx.fillRect(iconX + 4, iconY + 12, 16, 8); // arrow body
-          ctx.fillRect(iconX + 16, iconY + 8, 8, 16); // arrow head
-          ctx.fillRect(iconX + 20, iconY + 12, 4, 8); // arrow tip
+          imageKey = 'lightning';
           break;
         case 'invulnerability':
-          // Draw diamond shield
-          ctx.fillStyle = '#FFD700';
-          ctx.fillRect(iconX + 12, iconY + 4, 8, 8); // top
-          ctx.fillRect(iconX + 8, iconY + 8, 16, 8); // middle
-          ctx.fillRect(iconX + 4, iconY + 12, 24, 8); // center
-          ctx.fillRect(iconX + 8, iconY + 16, 16, 8); // lower middle
-          ctx.fillRect(iconX + 12, iconY + 20, 8, 8); // bottom
+          imageKey = 'shield';
           break;
         case 'gun':
-          // Draw simplified gun shape
-          ctx.fillStyle = '#FF6B6B';
-          ctx.fillRect(iconX + 4, iconY + 12, 20, 8); // gun body
-          ctx.fillRect(iconX + 20, iconY + 8, 8, 16); // grip
-          ctx.fillRect(iconX + 24, iconY + 14, 4, 4); // barrel
+          imageKey = 'gun';
           break;
+      }
+      
+      const powerupImage = imagesRef.current[imageKey];
+      if (powerupImage) {
+        const iconSize = size - 4; // Leave some padding
+        ctx.drawImage(powerupImage, iconX + 2, iconY + 2, iconSize, iconSize);
       }
     };
     
