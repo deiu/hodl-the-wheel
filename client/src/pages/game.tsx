@@ -587,9 +587,8 @@ export default function Game() {
     });
     
     // Update coins
-    state.coins = state.coins.filter(coin => {
+    state.coins.forEach(coin => {
       coin.y += coin.speed;
-      return coin.y < 800;
     });
 
     // Update bullets
