@@ -179,6 +179,11 @@ Changelog:
   * Updated warden protection to use new layered green chevron shield design (warden_1751489700206.png)
   * Enhanced 8-bit pixel art style with improved visual clarity
   * Maintained consistent shield iconography for protection powerup
+- July 02, 2025. Smooth speed transition system
+  * Replaced abrupt speed increases with gradual 1-second transitions
+  * Implemented ease-out cubic easing for natural acceleration feel
+  * Speed still increases every 5 seconds but now smoothly ramps up over transition period
+  * Enhanced gameplay experience with less jarring difficulty spikes
 ```
 
 ## User Preferences

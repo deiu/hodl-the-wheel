@@ -309,8 +309,25 @@ export default function Game() {
   const getCurrentObstacleSpeed = () => {
     const state = gameStateRef.current;
     const timeElapsed = Date.now() - state.gameStartTime;
-    const speedIncreases = Math.floor(timeElapsed / 5000); // Every 5 seconds
-    return state.baseObstacleSpeed + speedIncreases;
+    const speedIncreaseInterval = 5000; // Every 5 seconds
+    const transitionDuration = 1000; // 1 second transition period
+    
+    // Calculate which speed level we're at
+    const speedLevel = Math.floor(timeElapsed / speedIncreaseInterval);
+    const baseSpeed = state.baseObstacleSpeed + speedLevel;
+    
+    // Check if we're in a transition period
+    const timeInCurrentInterval = timeElapsed % speedIncreaseInterval;
+    if (timeInCurrentInterval < transitionDuration && speedLevel > 0) {
+      // Smoothly transition from previous speed to current speed
+      const previousSpeed = state.baseObstacleSpeed + (speedLevel - 1);
+      const transitionProgress = timeInCurrentInterval / transitionDuration;
+      // Use easing function for smoother transition
+      const easedProgress = 1 - Math.pow(1 - transitionProgress, 3); // Ease-out cubic
+      return previousSpeed + (baseSpeed - previousSpeed) * easedProgress;
+    }
+    
+    return baseSpeed;
   };
 
   // Visual effect functions
