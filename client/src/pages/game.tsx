@@ -511,7 +511,7 @@ export default function Game() {
         y: -30,
         width: 30,
         height: 30,
-        speed: 3,
+        speed: 2,
         coinType: randomCoinData.type,
         points: randomCoinData.points
       };
