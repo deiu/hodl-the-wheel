@@ -442,35 +442,33 @@ export default function Game() {
       
       switch (powerupType) {
         case 'life':
+          // Draw plus sign (medical cross)
           ctx.fillStyle = '#FF1493';
-          ctx.fillRect(iconX + 6 * scale, iconY + 5 * scale, 6 * scale, 4 * scale);
-          ctx.fillRect(iconX + 14 * scale, iconY + 5 * scale, 6 * scale, 4 * scale);
-          ctx.fillRect(iconX + 4 * scale, iconY + 8 * scale, 18 * scale, 8 * scale);
-          ctx.fillRect(iconX + 6 * scale, iconY + 16 * scale, 14 * scale, 6 * scale);
-          ctx.fillRect(iconX + 8 * scale, iconY + 22 * scale, 10 * scale, 4 * scale);
-          ctx.fillRect(iconX + 10 * scale, iconY + 26 * scale, 6 * scale, 2 * scale);
+          ctx.fillRect(iconX + 8 * scale, iconY + 4 * scale, 8 * scale, 24 * scale); // vertical bar
+          ctx.fillRect(iconX + 4 * scale, iconY + 12 * scale, 16 * scale, 8 * scale); // horizontal bar
           break;
         case 'speed':
+          // Draw arrow pointing right
           ctx.fillStyle = '#00FFFF';
-          ctx.fillRect(iconX + 10 * scale, iconY + 4 * scale, 8 * scale, 24 * scale);
-          ctx.fillRect(iconX + 6 * scale, iconY + 10 * scale, 12 * scale, 4 * scale);
-          ctx.fillRect(iconX + 12 * scale, iconY + 20 * scale, 12 * scale, 4 * scale);
+          ctx.fillRect(iconX + 4 * scale, iconY + 12 * scale, 16 * scale, 8 * scale); // arrow body
+          ctx.fillRect(iconX + 16 * scale, iconY + 8 * scale, 8 * scale, 16 * scale); // arrow head
+          ctx.fillRect(iconX + 20 * scale, iconY + 12 * scale, 4 * scale, 8 * scale); // arrow tip
           break;
         case 'invulnerability':
+          // Draw diamond shield
           ctx.fillStyle = '#FFD700';
-          ctx.fillRect(iconX + 4 * scale, iconY + 4 * scale, 18 * scale, 18 * scale);
-          ctx.fillStyle = '#FFA500';
-          ctx.fillRect(iconX + 7 * scale, iconY + 7 * scale, 12 * scale, 12 * scale);
-          ctx.fillStyle = '#FFD700';
-          ctx.fillRect(iconX + 9 * scale, iconY + 9 * scale, 8 * scale, 8 * scale);
+          ctx.fillRect(iconX + 12 * scale, iconY + 4 * scale, 8 * scale, 8 * scale); // top
+          ctx.fillRect(iconX + 8 * scale, iconY + 8 * scale, 16 * scale, 8 * scale); // middle
+          ctx.fillRect(iconX + 4 * scale, iconY + 12 * scale, 24 * scale, 8 * scale); // center
+          ctx.fillRect(iconX + 8 * scale, iconY + 16 * scale, 16 * scale, 8 * scale); // lower middle
+          ctx.fillRect(iconX + 12 * scale, iconY + 20 * scale, 8 * scale, 8 * scale); // bottom
           break;
         case 'gun':
-          ctx.fillStyle = '#8B4513';
-          ctx.fillRect(iconX + 6 * scale, iconY + 12 * scale, 14 * scale, 6 * scale);
-          ctx.fillRect(iconX + 18 * scale, iconY + 14 * scale, 6 * scale, 2 * scale);
-          ctx.fillRect(iconX + 4 * scale, iconY + 16 * scale, 4 * scale, 8 * scale);
-          ctx.fillStyle = '#A0522D';
-          ctx.fillRect(iconX + 8 * scale, iconY + 14 * scale, 10 * scale, 2 * scale);
+          // Draw simplified gun shape
+          ctx.fillStyle = '#FF6B6B';
+          ctx.fillRect(iconX + 4 * scale, iconY + 12 * scale, 20 * scale, 8 * scale); // gun body
+          ctx.fillRect(iconX + 20 * scale, iconY + 8 * scale, 8 * scale, 16 * scale); // grip
+          ctx.fillRect(iconX + 24 * scale, iconY + 14 * scale, 4 * scale, 4 * scale); // barrel
           break;
       }
     });
@@ -508,35 +506,33 @@ export default function Game() {
       
       switch (type) {
         case 'life':
+          // Draw plus sign (medical cross)
           ctx.fillStyle = '#FF1493';
-          ctx.fillRect(iconX + 6, iconY + 5, 6, 4);
-          ctx.fillRect(iconX + 14, iconY + 5, 6, 4);
-          ctx.fillRect(iconX + 4, iconY + 8, 18, 8);
-          ctx.fillRect(iconX + 6, iconY + 16, 14, 6);
-          ctx.fillRect(iconX + 8, iconY + 22, 10, 4);
-          ctx.fillRect(iconX + 10, iconY + 26, 6, 2);
+          ctx.fillRect(iconX + 8, iconY + 4, 8, 24); // vertical bar
+          ctx.fillRect(iconX + 4, iconY + 12, 16, 8); // horizontal bar
           break;
         case 'speed':
+          // Draw arrow pointing right
           ctx.fillStyle = '#00FFFF';
-          ctx.fillRect(iconX + 10, iconY + 4, 8, 24);
-          ctx.fillRect(iconX + 6, iconY + 10, 12, 4);
-          ctx.fillRect(iconX + 12, iconY + 20, 12, 4);
+          ctx.fillRect(iconX + 4, iconY + 12, 16, 8); // arrow body
+          ctx.fillRect(iconX + 16, iconY + 8, 8, 16); // arrow head
+          ctx.fillRect(iconX + 20, iconY + 12, 4, 8); // arrow tip
           break;
         case 'invulnerability':
+          // Draw diamond shield
           ctx.fillStyle = '#FFD700';
-          ctx.fillRect(iconX + 4, iconY + 4, 18, 18);
-          ctx.fillStyle = '#FFA500';
-          ctx.fillRect(iconX + 7, iconY + 7, 12, 12);
-          ctx.fillStyle = '#FFD700';
-          ctx.fillRect(iconX + 9, iconY + 9, 8, 8);
+          ctx.fillRect(iconX + 12, iconY + 4, 8, 8); // top
+          ctx.fillRect(iconX + 8, iconY + 8, 16, 8); // middle
+          ctx.fillRect(iconX + 4, iconY + 12, 24, 8); // center
+          ctx.fillRect(iconX + 8, iconY + 16, 16, 8); // lower middle
+          ctx.fillRect(iconX + 12, iconY + 20, 8, 8); // bottom
           break;
         case 'gun':
-          ctx.fillStyle = '#8B4513';
-          ctx.fillRect(iconX + 6, iconY + 12, 14, 6);
-          ctx.fillRect(iconX + 18, iconY + 14, 6, 2);
-          ctx.fillRect(iconX + 4, iconY + 16, 4, 8);
-          ctx.fillStyle = '#A0522D';
-          ctx.fillRect(iconX + 8, iconY + 14, 10, 2);
+          // Draw simplified gun shape
+          ctx.fillStyle = '#FF6B6B';
+          ctx.fillRect(iconX + 4, iconY + 12, 20, 8); // gun body
+          ctx.fillRect(iconX + 20, iconY + 8, 8, 16); // grip
+          ctx.fillRect(iconX + 24, iconY + 14, 4, 4); // barrel
           break;
       }
     };
@@ -741,11 +737,13 @@ export default function Game() {
               {[...Array(3)].map((_, i) => (
                 <div 
                   key={i}
-                  className="w-6 h-6 border-2 border-white"
+                  className="w-6 h-6 flex items-center justify-center text-lg"
                   style={{ 
-                    backgroundColor: i < gameState.lives ? '#FF69B4' : '#333333' 
+                    color: i < gameState.lives ? '#FF1493' : '#333333' 
                   }}
-                />
+                >
+                  ♥
+                </div>
               ))}
             </div>
           </div>
