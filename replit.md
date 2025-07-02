@@ -129,6 +129,10 @@ Changelog:
   * Added dramatic death explosion with multiple large explosions and massive debris field
   * Integrated game over sound effect with enhanced audio system
   * Added double points powerup status indicator to UI
+- July 02, 2025. UI alignment and powerup spawn improvements
+  * Fixed powerup status descriptions to be perfectly centered on full page width
+  * Increased powerup spawn rate by 50% (from 8 seconds to 5.33 seconds) for more frequent powerup generation
+  * Multiple powerups can now appear simultaneously on screen for enhanced gameplay
 ```
 
 ## User Preferences

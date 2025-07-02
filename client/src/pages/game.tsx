@@ -440,7 +440,7 @@ export default function Game() {
     const now = Date.now();
     const state = gameStateRef.current;
     
-    if (now - state.lastPowerupSpawn > 8000 && Math.random() < 0.3) {
+    if (now - state.lastPowerupSpawn > 5333 && Math.random() < 0.3) {
       const powerupTypes: ('life' | 'speed' | 'invulnerability' | 'gun' | 'doublepoints')[] = ['life', 'speed', 'invulnerability', 'gun', 'doublepoints'];
       const randomType = powerupTypes[Math.floor(Math.random() * powerupTypes.length)];
       
@@ -1158,30 +1158,30 @@ export default function Game() {
             </div>
           </div>
         </div>
-        
-        {/* Active Powerups Indicator - Centered */}
-        <div className="flex flex-col items-center mt-2 space-y-1">
-          {Date.now() < gameState.speedBoostEndTime && (
-            <div className="pixel-font text-xs text-cyan-400 bg-black bg-opacity-75 px-2 py-1">
-              SPEED BOOST
-            </div>
-          )}
-          {Date.now() < gameState.invulnerabilityEndTime && (
-            <div className="pixel-font text-xs text-yellow-400 bg-black bg-opacity-75 px-2 py-1">
-              INVULNERABLE
-            </div>
-          )}
-          {Date.now() < gameState.gunEndTime && (
-            <div className="pixel-font text-xs text-red-400 bg-black bg-opacity-75 px-2 py-1">
-              GUN ACTIVE
-            </div>
-          )}
-          {Date.now() < gameState.doublePointsEndTime && (
-            <div className="pixel-font text-xs text-pink-400 bg-black bg-opacity-75 px-2 py-1">
-              DOUBLE POINTS
-            </div>
-          )}
-        </div>
+      </div>
+      
+      {/* Active Powerups Indicator - Centered on full page */}
+      <div className="absolute top-20 left-0 right-0 flex flex-col items-center space-y-1">
+        {Date.now() < gameState.speedBoostEndTime && (
+          <div className="pixel-font text-xs text-cyan-400 bg-black bg-opacity-75 px-2 py-1">
+            SPEED BOOST
+          </div>
+        )}
+        {Date.now() < gameState.invulnerabilityEndTime && (
+          <div className="pixel-font text-xs text-yellow-400 bg-black bg-opacity-75 px-2 py-1">
+            INVULNERABLE
+          </div>
+        )}
+        {Date.now() < gameState.gunEndTime && (
+          <div className="pixel-font text-xs text-red-400 bg-black bg-opacity-75 px-2 py-1">
+            GUN ACTIVE
+          </div>
+        )}
+        {Date.now() < gameState.doublePointsEndTime && (
+          <div className="pixel-font text-xs text-pink-400 bg-black bg-opacity-75 px-2 py-1">
+            DOUBLE POINTS
+          </div>
+        )}
       </div>
       
       {/* Game Over Screen */}
