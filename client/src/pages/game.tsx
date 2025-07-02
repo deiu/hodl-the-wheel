@@ -299,10 +299,10 @@ export default function Game() {
       const randomType = powerupTypes[Math.floor(Math.random() * powerupTypes.length)];
       
       state.powerups.push({
-        x: Math.random() * (800 - 50),
-        y: -50,
-        width: 50,
-        height: 50,
+        x: Math.random() * (800 - 40),
+        y: -40,
+        width: 40,
+        height: 40,
         speed: 2,
         powerupType: randomType
       });
@@ -432,9 +432,10 @@ export default function Game() {
 
     // Draw player car using image
     const player = state.player;
-    if (imagesLoaded && player.type && imagesRef.current[player.type]) {
+    const playerImage = imagesRef.current[player.type || 'mycar'];
+    if (playerImage) {
       ctx.drawImage(
-        imagesRef.current[player.type],
+        playerImage,
         player.x,
         player.y,
         player.width,
@@ -448,9 +449,10 @@ export default function Game() {
 
     // Draw obstacles using images
     state.obstacles.forEach(obstacle => {
-      if (imagesLoaded && obstacle.type && imagesRef.current[obstacle.type]) {
+      const obstacleImage = imagesRef.current[obstacle.type || 'red'];
+      if (obstacleImage) {
         ctx.drawImage(
-          imagesRef.current[obstacle.type],
+          obstacleImage,
           obstacle.x,
           obstacle.y,
           obstacle.width,
