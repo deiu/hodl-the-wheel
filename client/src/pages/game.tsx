@@ -99,7 +99,7 @@ export default function Game() {
   const gameOverAudioRef = useRef<HTMLAudioElement | null>(null);
   const [imagesLoaded, setImagesLoaded] = useState(false);
   const [isMusicPlaying, setIsMusicPlaying] = useState(() => {
-    const saved = localStorage.getItem('carRushMusicEnabled');
+    const saved = localStorage.getItem('wardenRacerMusicEnabled');
     return saved !== null ? saved === 'true' : true; // Default to enabled
   });
   
@@ -139,7 +139,7 @@ export default function Game() {
 
   const [gameState, setGameState] = useState(gameStateRef.current);
   const [localHighScore, setLocalHighScore] = useState(
-    parseInt(localStorage.getItem('carRushHighScore') || '0')
+    parseInt(localStorage.getItem('wardenRacerHighScore') || '0')
   );
 
   // Load car images and initialize audio
@@ -199,11 +199,11 @@ export default function Game() {
       if (isMusicPlaying) {
         audioRef.current.pause();
         setIsMusicPlaying(false);
-        localStorage.setItem('carRushMusicEnabled', 'false');
+        localStorage.setItem('wardenRacerMusicEnabled', 'false');
       } else {
         audioRef.current.play().catch(e => console.log('Could not play audio:', e));
         setIsMusicPlaying(true);
-        localStorage.setItem('carRushMusicEnabled', 'true');
+        localStorage.setItem('wardenRacerMusicEnabled', 'true');
       }
     }
   }, [isMusicPlaying]);
@@ -1032,7 +1032,7 @@ export default function Game() {
     
     if (state.score > localHighScore) {
       setLocalHighScore(state.score);
-      localStorage.setItem('carRushHighScore', state.score.toString());
+      localStorage.setItem('wardenRacerHighScore', state.score.toString());
     }
 
     stopMusic();
@@ -1058,7 +1058,7 @@ export default function Game() {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center pixel-font">
         <div className="text-center">
-          <div className="text-4xl text-white mb-8 animate-pulse">8-BIT CAR RUSH</div>
+          <div className="text-4xl text-white mb-8 animate-pulse">WARDEN RACER</div>
           
           <Card className="mb-8 border-4 border-white bg-gray-900 w-80 mx-auto">
             <CardContent className="p-4">

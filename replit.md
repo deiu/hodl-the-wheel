@@ -1,8 +1,8 @@
-# 8-Bit Car Rush - Retro Arcade Game
+# WardenRacer - Retro Arcade Game
 
 ## Overview
 
-8-Bit Car Rush is a retro-style top-down car obstacle avoidance game built with a modern tech stack. The application features a React frontend with a sleek retro aesthetic and an Express.js backend for high score management. Players control a car using arrow keys or WASD, avoiding obstacles while collecting powerups to achieve the highest score possible.
+WardenRacer is a retro-style top-down car obstacle avoidance game built with a modern tech stack. The application features a React frontend with a sleek retro aesthetic and an Express.js backend for high score management. Players control a car using arrow keys or WASD, avoiding obstacles while collecting powerups to achieve the highest score possible.
 
 ## System Architecture
 
@@ -184,6 +184,11 @@ Changelog:
   * Implemented ease-out cubic easing for natural acceleration feel
   * Speed still increases every 5 seconds but now smoothly ramps up over transition period
   * Enhanced gameplay experience with less jarring difficulty spikes
+- July 02, 2025. Project rebrand to WardenRacer
+  * Changed project name from "8-Bit Car Rush" to "WardenRacer"
+  * Updated HTML title, meta description, and all game UI text
+  * Migrated localStorage keys from "carRush*" to "wardenRacer*" prefix
+  * Maintained all functionality while establishing new brand identity
 ```
 
 ## User Preferences
