@@ -95,6 +95,10 @@
 ```
 Changelog:
 - July 02, 2025. Initial setup
+- July 02, 2025. Added complete audio system with background music, shoot sound, and powerup sound effects
+- July 02, 2025. Implemented music persistence in localStorage for consistent user experience
+- July 02, 2025. Updated powerup icons - life powerup now uses heart symbols for better visual consistency
+- July 02, 2025. Enhanced UI with heart symbols for lives display and improved powerup visibility
 ```
 
 ## User Preferences

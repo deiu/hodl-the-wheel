@@ -54,7 +54,10 @@ export default function Game() {
   const shootAudioRef = useRef<HTMLAudioElement | null>(null);
   const powerupAudioRef = useRef<HTMLAudioElement | null>(null);
   const [imagesLoaded, setImagesLoaded] = useState(false);
-  const [isMusicPlaying, setIsMusicPlaying] = useState(false);
+  const [isMusicPlaying, setIsMusicPlaying] = useState(() => {
+    const saved = localStorage.getItem('carRushMusicEnabled');
+    return saved !== null ? saved === 'true' : true; // Default to enabled
+  });
   
   const gameStateRef = useRef<GameState>({
     isRunning: false,
@@ -136,9 +139,11 @@ export default function Game() {
       if (isMusicPlaying) {
         audioRef.current.pause();
         setIsMusicPlaying(false);
+        localStorage.setItem('carRushMusicEnabled', 'false');
       } else {
         audioRef.current.play().catch(e => console.log('Could not play audio:', e));
         setIsMusicPlaying(true);
+        localStorage.setItem('carRushMusicEnabled', 'true');
       }
     }
   }, [isMusicPlaying]);
@@ -471,10 +476,14 @@ export default function Game() {
       
       switch (powerupType) {
         case 'life':
-          // Draw plus sign (medical cross)
+          // Draw heart shape
           ctx.fillStyle = '#FF1493';
-          ctx.fillRect(iconX + 8 * scale, iconY + 4 * scale, 8 * scale, 24 * scale); // vertical bar
-          ctx.fillRect(iconX + 4 * scale, iconY + 12 * scale, 16 * scale, 8 * scale); // horizontal bar
+          ctx.fillRect(iconX + 6 * scale, iconY + 8 * scale, 6 * scale, 4 * scale); // left heart lobe
+          ctx.fillRect(iconX + 14 * scale, iconY + 8 * scale, 6 * scale, 4 * scale); // right heart lobe
+          ctx.fillRect(iconX + 4 * scale, iconY + 12 * scale, 18 * scale, 8 * scale); // upper body
+          ctx.fillRect(iconX + 6 * scale, iconY + 20 * scale, 14 * scale, 6 * scale); // middle body
+          ctx.fillRect(iconX + 8 * scale, iconY + 26 * scale, 10 * scale, 4 * scale); // lower body
+          ctx.fillRect(iconX + 10 * scale, iconY + 30 * scale, 6 * scale, 2 * scale); // tip
           break;
         case 'speed':
           // Draw arrow pointing right
@@ -535,10 +544,14 @@ export default function Game() {
       
       switch (type) {
         case 'life':
-          // Draw plus sign (medical cross)
+          // Draw heart shape
           ctx.fillStyle = '#FF1493';
-          ctx.fillRect(iconX + 8, iconY + 4, 8, 24); // vertical bar
-          ctx.fillRect(iconX + 4, iconY + 12, 16, 8); // horizontal bar
+          ctx.fillRect(iconX + 6, iconY + 8, 6, 4); // left heart lobe
+          ctx.fillRect(iconX + 14, iconY + 8, 6, 4); // right heart lobe
+          ctx.fillRect(iconX + 4, iconY + 12, 18, 8); // upper body
+          ctx.fillRect(iconX + 6, iconY + 20, 14, 6); // middle body
+          ctx.fillRect(iconX + 8, iconY + 26, 10, 4); // lower body
+          ctx.fillRect(iconX + 10, iconY + 30, 6, 2); // tip
           break;
         case 'speed':
           // Draw arrow pointing right
