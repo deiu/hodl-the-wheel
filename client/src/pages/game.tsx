@@ -699,7 +699,7 @@ export default function Game() {
             </CardContent>
           </Card>
           
-          <div className="space-y-4">
+          <div className="flex flex-col items-center space-y-4">
             <Button 
               onClick={startGame}
               className="retro-button text-lg"
@@ -797,7 +797,7 @@ export default function Game() {
               <div className="pixel-font text-xl text-yellow-400 mb-6">
                 {gameState.score.toString().padStart(6, '0')}
               </div>
-              <div className="space-y-4">
+              <div className="flex flex-col items-center space-y-4">
                 <Button onClick={restartGame} className="retro-button">
                   RESTART GAME
                 </Button>
@@ -821,7 +821,7 @@ export default function Game() {
           <Card className="bg-black border-4 border-white p-8">
             <CardContent className="text-center">
               <div className="pixel-font text-2xl text-yellow-400 mb-6">PAUSED</div>
-              <div className="space-y-4">
+              <div className="flex flex-col items-center space-y-4">
                 <Button onClick={resumeGame} className="retro-button">
                   RESUME
                 </Button>
