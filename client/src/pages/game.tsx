@@ -84,6 +84,8 @@ interface GameState {
   lastCoinSpawn: number;
   gameStartTime: number;
   baseObstacleSpeed: number;
+  totalPausedTime: number;
+  pauseStartTime: number;
   // Active powerup effects
   speedBoostEndTime: number;
   invulnerabilityEndTime: number;
@@ -133,6 +135,8 @@ export default function Game() {
     lastCoinSpawn: 0,
     gameStartTime: 0,
     baseObstacleSpeed: 3,
+    totalPausedTime: 0,
+    pauseStartTime: 0,
     speedBoostEndTime: 0,
     invulnerabilityEndTime: 0,
     gunEndTime: 0,
@@ -325,7 +329,8 @@ export default function Game() {
 
   const getCurrentObstacleSpeed = () => {
     const state = gameStateRef.current;
-    const timeElapsed = Date.now() - state.gameStartTime;
+    const currentPauseTime = state.isPaused ? (Date.now() - state.pauseStartTime) : 0;
+    const timeElapsed = Date.now() - state.gameStartTime - state.totalPausedTime - currentPauseTime;
     const speedIncreaseInterval = 5000; // Every 5 seconds
     const transitionDuration = 1000; // 1 second transition period
     
@@ -536,7 +541,7 @@ export default function Game() {
     }
     
     // Add distance-based scoring (every second survived = 10 points)
-    if (state.isRunning && now - state.lastHitTime > 1000) {
+    if (state.isRunning && !state.isPaused && now - state.lastHitTime > 1000) {
       addScore(10);
       state.lastHitTime = now;
     }
@@ -1032,6 +1037,8 @@ export default function Game() {
     state.player = { x: 575, y: 700, width: 50, height: 80, speed: 5, type: 'mycar' };
     state.gameStartTime = Date.now();
     state.baseObstacleSpeed = 3;
+    state.totalPausedTime = 0;
+    state.pauseStartTime = 0;
     state.lastObstacleSpawn = 0;
     state.lastPowerupSpawn = 0;
     state.lastCoinSpawn = 0;
@@ -1059,6 +1066,7 @@ export default function Game() {
   const pauseGame = () => {
     const state = gameStateRef.current;
     state.isPaused = true;
+    state.pauseStartTime = Date.now();
     if (audioRef.current && isMusicPlaying) {
       audioRef.current.pause();
     }
@@ -1081,6 +1089,8 @@ export default function Game() {
       if (currentState.resumeCountdown <= 0) {
         clearInterval(countdownInterval);
         currentState.isPaused = false;
+        // Add paused time to total
+        currentState.totalPausedTime += Date.now() - currentState.pauseStartTime;
         if (audioRef.current && isMusicPlaying) {
           audioRef.current.play().catch(e => console.log('Could not resume audio:', e));
         }
