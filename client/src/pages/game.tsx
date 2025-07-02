@@ -8,7 +8,7 @@ import myCar from "@assets/mycar_1751475557453.png";
 import backgroundMusic from "@assets/SLOWER-TEMPO2019-12-11_-_Retro_Platforming_-_David_Fesliyan_1751478645287.mp3";
 import shootSound from "@assets/8-bit-shoot_1751479421238.mp3";
 import powerupSound from "@assets/8-bit-powerup_1751479421239.mp3";
-import heartIcon from "@assets/heart_1751479980027.png";
+import heartIcon from "@assets/heart_1751480160776.png";
 import lightningIcon from "@assets/lightning_1751479980027.png";
 import shieldIcon from "@assets/shield_1751479980027.jpg";
 import gunIcon from "@assets/gun_1751479980026.png";
@@ -463,17 +463,11 @@ export default function Game() {
       }
     });
 
-    // Draw powerups with image icons
+    // Draw powerups with image icons (using transparency)
     state.powerups.forEach(powerup => {
       const { x, y, width, height, powerupType } = powerup;
       
-      // Background for all powerups
-      ctx.fillStyle = '#000000';
-      ctx.fillRect(x, y, width, height);
-      ctx.fillStyle = '#FFFFFF';
-      ctx.fillRect(x + 2, y + 2, width - 4, height - 4);
-      
-      // Draw the appropriate powerup image
+      // Draw the appropriate powerup image without background
       let imageKey = '';
       switch (powerupType) {
         case 'life':
@@ -492,10 +486,7 @@ export default function Game() {
       
       const powerupImage = imagesRef.current[imageKey];
       if (powerupImage) {
-        const iconSize = width - 8; // Leave some padding
-        const iconX = x + 4;
-        const iconY = y + 4;
-        ctx.drawImage(powerupImage, iconX, iconY, iconSize, iconSize);
+        ctx.drawImage(powerupImage, x, y, width, height);
       }
     });
 
@@ -524,13 +515,7 @@ export default function Game() {
       const iconX = x;
       const iconY = y - size + 4;
       
-      // Background
-      ctx.fillStyle = '#000000';
-      ctx.fillRect(iconX, iconY, size, size);
-      ctx.fillStyle = '#FFFFFF';
-      ctx.fillRect(iconX + 1, iconY + 1, size - 2, size - 2);
-      
-      // Draw the appropriate powerup image
+      // Draw the appropriate powerup image with transparency (no background)
       let imageKey = '';
       switch (type) {
         case 'life':
@@ -549,8 +534,7 @@ export default function Game() {
       
       const powerupImage = imagesRef.current[imageKey];
       if (powerupImage) {
-        const iconSize = size - 4; // Leave some padding
-        ctx.drawImage(powerupImage, iconX + 2, iconY + 2, iconSize, iconSize);
+        ctx.drawImage(powerupImage, iconX, iconY, size, size);
       }
     };
     
