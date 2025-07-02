@@ -9,7 +9,6 @@ import backgroundMusic from "@assets/SLOWER-TEMPO2019-12-11_-_Retro_Platforming_
 import shootSound from "@assets/8-bit-shoot_1751479421238.mp3";
 import powerupSound from "@assets/8-bit-powerup_1751479421239.mp3";
 import gameOverSound from "@assets/game-over_1751484756101.mp3";
-import lightningIcon from "@assets/speed_1751487957040.png";
 import shieldIcon from "@assets/warden_1751488639462.png";
 
 interface GameObject {
@@ -151,7 +150,6 @@ export default function Game() {
         { key: 'blue', src: blueCar },
         { key: 'green', src: greenCar },
         { key: 'mycar', src: myCar },
-        { key: 'lightning', src: lightningIcon },
         { key: 'shield', src: shieldIcon }
       ].map(({ key, src }) => {
         return new Promise<void>((resolve) => {
@@ -721,10 +719,9 @@ export default function Game() {
           ctx.fillText('❤️', x + width/2, y + height - 2);
           break;
         case 'speed':
-          const lightningImage = imagesRef.current['lightning'];
-          if (lightningImage) {
-            ctx.drawImage(lightningImage, x, y, width, height);
-          }
+          ctx.font = `${height}px monospace`;
+          ctx.textAlign = 'center';
+          ctx.fillText('⚡', x + width/2, y + height - 2);
           break;
         case 'invulnerability':
           const shieldImage = imagesRef.current['shield'];
@@ -845,10 +842,9 @@ export default function Game() {
           ctx.fillText('❤️', iconX, iconY + size - 2);
           break;
         case 'speed':
-          const lightningImage = imagesRef.current['lightning'];
-          if (lightningImage) {
-            ctx.drawImage(lightningImage, iconX, iconY, size, size);
-          }
+          ctx.font = `${size}px monospace`;
+          ctx.textAlign = 'left';
+          ctx.fillText('⚡', iconX, iconY + size - 2);
           break;
         case 'invulnerability':
           const shieldImage = imagesRef.current['shield'];
@@ -1078,7 +1074,7 @@ export default function Game() {
                   Life: +1 Life
                 </div>
                 <div className="text-xs text-cyan-400 flex items-center gap-2">
-                  <img src={lightningIcon} alt="Speed" className="w-3 h-4" />
+                  <span className="text-base">⚡</span>
                   Speed: 5s Boost
                 </div>
                 <div className="text-xs text-yellow-400 flex items-center gap-2">

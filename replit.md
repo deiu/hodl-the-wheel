@@ -170,6 +170,11 @@ Changelog:
   * Kept PNG images for speed lightning bolt and warden protection shield
   * Updated both in-game powerups and start page to use consistent icon types
   * Enhanced visual consistency while reducing image dependencies
+- July 02, 2025. Speed icon emoji conversion
+  * Changed speed powerup from PNG lightning bolt to ⚡ emoji
+  * Now only warden protection uses PNG image, all others use emojis
+  * Simplified icon system with consistent emoji styling
+  * Reduced image loading dependencies to single shield icon
 ```
 
 ## User Preferences
