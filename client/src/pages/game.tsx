@@ -9,7 +9,7 @@ import backgroundMusic from "@assets/SLOWER-TEMPO2019-12-11_-_Retro_Platforming_
 import shootSound from "@assets/8-bit-shoot_1751479421238.mp3";
 import powerupSound from "@assets/8-bit-powerup_1751479421239.mp3";
 import gameOverSound from "@assets/game-over_1751484756101.mp3";
-import shieldIcon from "@assets/warden_1751488639462.png";
+import shieldIcon from "@assets/warden_1751489700206.png";
 
 interface GameObject {
   x: number;
