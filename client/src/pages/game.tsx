@@ -8,10 +8,10 @@ import myCar from "@assets/mycar_1751475557453.png";
 import backgroundMusic from "@assets/SLOWER-TEMPO2019-12-11_-_Retro_Platforming_-_David_Fesliyan_1751478645287.mp3";
 import shootSound from "@assets/8-bit-shoot_1751479421238.mp3";
 import powerupSound from "@assets/8-bit-powerup_1751479421239.mp3";
-import heartIcon from "@assets/heart_1751480160776.png";
-import lightningIcon from "@assets/lightning_1751479980027.png";
-import shieldIcon from "@assets/shield_1751479980027.jpg";
-import gunIcon from "@assets/gun_1751479980026.png";
+import heartIcon from "@assets/heart_1751480550870.png";
+import lightningIcon from "@assets/lightning_1751480550870.png";
+import shieldIcon from "@assets/shield_1751480550870.png";
+import gunIcon from "@assets/gun_1751480550869.png";
 
 interface GameObject {
   x: number;
