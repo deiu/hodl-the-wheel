@@ -8,10 +8,10 @@ import myCar from "@assets/mycar_1751475557453.png";
 import backgroundMusic from "@assets/SLOWER-TEMPO2019-12-11_-_Retro_Platforming_-_David_Fesliyan_1751478645287.mp3";
 import shootSound from "@assets/8-bit-shoot_1751479421238.mp3";
 import powerupSound from "@assets/8-bit-powerup_1751479421239.mp3";
-import heartIcon from "@assets/heart_1751480550870.png";
-import lightningIcon from "@assets/lightning_1751480550870.png";
-import shieldIcon from "@assets/shield_1751480550870.png";
-import gunIcon from "@assets/gun_1751480550869.png";
+import heartIcon from "@assets/life_1751481001186.png";
+import lightningIcon from "@assets/speed_1751481001186.png";
+import shieldIcon from "@assets/shield_1751481001186.png";
+import gunIcon from "@assets/gun_1751481001186.png";
 
 interface GameObject {
   x: number;
@@ -259,10 +259,10 @@ export default function Game() {
     const player = state.player;
     
     state.bullets.push({
-      x: player.x + player.width / 2 - 2,
+      x: player.x + player.width / 2 - 4,
       y: player.y,
-      width: 4,
-      height: 10,
+      width: 8,
+      height: 16,
       speed: 8
     });
     
