@@ -136,6 +136,10 @@ Changelog:
 - July 02, 2025. Music settings persistence fix
   * Fixed music settings to properly persist when starting new games after dying
   * Music now respects user's ON/OFF preference stored in localStorage across game sessions
+- July 02, 2025. Top bar layout improvement
+  * Changed top bar from flex justify-between to 3-column grid layout
+  * Lives, Score, and High Score indicators now equally spaced and centered
+  * Improved visual balance with consistent spacing across all three sections
 ```
 
 ## User Preferences

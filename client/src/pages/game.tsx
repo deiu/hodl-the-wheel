@@ -1118,9 +1118,9 @@ export default function Game() {
       
       {/* Game UI Overlay */}
       <div className="absolute top-0 left-0 right-0 p-4 game-ui">
-        <div className="flex justify-between items-center max-w-4xl mx-auto">
+        <div className="grid grid-cols-3 gap-4 max-w-4xl mx-auto items-center">
           {/* Lives Display */}
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center justify-center space-x-2">
             <span className="pixel-font text-sm text-white">LIVES:</span>
             <div className="flex space-x-1">
               {[...Array(3)].map((_, i) => (
