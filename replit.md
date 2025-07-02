@@ -99,6 +99,20 @@ Changelog:
 - July 02, 2025. Implemented music persistence in localStorage for consistent user experience
 - July 02, 2025. Updated powerup icons - life powerup now uses heart symbols for better visual consistency
 - July 02, 2025. Enhanced UI with heart symbols for lives display and improved powerup visibility
+- July 02, 2025. MAJOR UPDATE: Complete visual effects and advanced scoring system
+  * Added explosion effects when obstacles are destroyed or player takes damage
+  * Implemented particle system for visual feedback and speed boost trails
+  * Added screen shake effects for impacts and explosions
+  * Created floating score popup animations with combo multipliers
+  * Added invulnerability flashing effect
+  * Implemented comprehensive scoring system:
+    - Combo system with bonus points for consecutive hits
+    - Streak counter tracking destruction chains
+    - Distance-based survival scoring (10 points per second)
+    - Double points powerup (10 seconds, 2x multiplier)
+  * Added 3-second countdown when resuming from pause
+  * Enhanced UI with real-time combo and streak displays
+  * All powerup icons now use professional PNG assets with transparency
 ```
 
 ## User Preferences

@@ -23,11 +23,39 @@ interface GameObject {
 }
 
 interface Powerup extends GameObject {
-  powerupType: 'life' | 'speed' | 'invulnerability' | 'gun';
+  powerupType: 'life' | 'speed' | 'invulnerability' | 'gun' | 'doublepoints';
 }
 
 interface Bullet extends GameObject {
   // bullets move upward
+}
+
+interface Explosion {
+  x: number;
+  y: number;
+  radius: number;
+  maxRadius: number;
+  alpha: number;
+  startTime: number;
+}
+
+interface ScorePopup {
+  x: number;
+  y: number;
+  text: string;
+  alpha: number;
+  startTime: number;
+  color: string;
+}
+
+interface Particle {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  life: number;
+  maxLife: number;
+  color: string;
 }
 
 interface GameState {
@@ -40,6 +68,9 @@ interface GameState {
   obstacles: GameObject[];
   powerups: Powerup[];
   bullets: Bullet[];
+  explosions: Explosion[];
+  scorePopups: ScorePopup[];
+  particles: Particle[];
   lastObstacleSpawn: number;
   lastPowerupSpawn: number;
   gameStartTime: number;
@@ -48,7 +79,17 @@ interface GameState {
   speedBoostEndTime: number;
   invulnerabilityEndTime: number;
   gunEndTime: number;
+  doublePointsEndTime: number;
   originalPlayerSpeed: number;
+  // Scoring system
+  comboCount: number;
+  comboEndTime: number;
+  streakCount: number;
+  bestStreak: number;
+  lastHitTime: number;
+  // Visual effects
+  screenShake: number;
+  resumeCountdown: number;
 }
 
 export default function Game() {
@@ -73,6 +114,9 @@ export default function Game() {
     obstacles: [],
     powerups: [],
     bullets: [],
+    explosions: [],
+    scorePopups: [],
+    particles: [],
     lastObstacleSpawn: 0,
     lastPowerupSpawn: 0,
     gameStartTime: 0,
@@ -80,7 +124,15 @@ export default function Game() {
     speedBoostEndTime: 0,
     invulnerabilityEndTime: 0,
     gunEndTime: 0,
-    originalPlayerSpeed: 5
+    doublePointsEndTime: 0,
+    originalPlayerSpeed: 5,
+    comboCount: 0,
+    comboEndTime: 0,
+    streakCount: 0,
+    bestStreak: 0,
+    lastHitTime: 0,
+    screenShake: 0,
+    resumeCountdown: 0
   });
 
   const keysRef = useRef<Record<string, boolean>>({});
@@ -254,6 +306,63 @@ export default function Game() {
     return state.baseObstacleSpeed + speedIncreases;
   };
 
+  // Visual effect functions
+  const createExplosion = (x: number, y: number) => {
+    const state = gameStateRef.current;
+    state.explosions.push({
+      x: x,
+      y: y,
+      radius: 0,
+      maxRadius: 40,
+      alpha: 1,
+      startTime: Date.now()
+    });
+  };
+
+  const createScorePopup = (x: number, y: number, text: string, color: string = '#FFD700') => {
+    const state = gameStateRef.current;
+    state.scorePopups.push({
+      x: x,
+      y: y,
+      text: text,
+      alpha: 1,
+      startTime: Date.now(),
+      color: color
+    });
+  };
+
+  const createParticles = (x: number, y: number, color: string, count: number = 5) => {
+    const state = gameStateRef.current;
+    for (let i = 0; i < count; i++) {
+      state.particles.push({
+        x: x,
+        y: y,
+        vx: (Math.random() - 0.5) * 4,
+        vy: (Math.random() - 0.5) * 4,
+        life: 60,
+        maxLife: 60,
+        color: color
+      });
+    }
+  };
+
+  const addScreenShake = (intensity: number = 5) => {
+    const state = gameStateRef.current;
+    state.screenShake = Math.max(state.screenShake, intensity);
+  };
+
+  const addScore = (points: number, x?: number, y?: number) => {
+    const state = gameStateRef.current;
+    const multiplier = Date.now() < state.doublePointsEndTime ? 2 : 1;
+    const finalPoints = points * multiplier;
+    state.score += finalPoints;
+    
+    if (x && y) {
+      const displayText = multiplier > 1 ? `+${finalPoints} (x2!)` : `+${finalPoints}`;
+      createScorePopup(x, y, displayText, multiplier > 1 ? '#FF1493' : '#FFD700');
+    }
+  };
+
   const shootBullet = () => {
     const state = gameStateRef.current;
     const player = state.player;
@@ -295,7 +404,7 @@ export default function Game() {
     const state = gameStateRef.current;
     
     if (now - state.lastPowerupSpawn > 8000 && Math.random() < 0.3) {
-      const powerupTypes: ('life' | 'speed' | 'invulnerability' | 'gun')[] = ['life', 'speed', 'invulnerability', 'gun'];
+      const powerupTypes: ('life' | 'speed' | 'invulnerability' | 'gun' | 'doublepoints')[] = ['life', 'speed', 'invulnerability', 'gun', 'doublepoints'];
       const randomType = powerupTypes[Math.floor(Math.random() * powerupTypes.length)];
       
       state.powerups.push({
@@ -317,6 +426,47 @@ export default function Game() {
     // Update powerup effects
     if (now > state.speedBoostEndTime && state.player.speed > state.originalPlayerSpeed) {
       state.player.speed = state.originalPlayerSpeed;
+    }
+    
+    // Reset combo if timeout
+    if (now > state.comboEndTime) {
+      state.comboCount = 0;
+    }
+    
+    // Add distance-based scoring (every second survived = 10 points)
+    if (state.isRunning && now - state.lastHitTime > 1000) {
+      addScore(10);
+      state.lastHitTime = now;
+    }
+    
+    // Update visual effects
+    state.explosions = state.explosions.filter(explosion => {
+      const elapsed = now - explosion.startTime;
+      const progress = elapsed / 500; // 500ms duration
+      explosion.radius = explosion.maxRadius * progress;
+      explosion.alpha = 1 - progress;
+      return progress < 1;
+    });
+    
+    state.scorePopups = state.scorePopups.filter(popup => {
+      const elapsed = now - popup.startTime;
+      const progress = elapsed / 1000; // 1s duration
+      popup.y -= 2; // Float upward
+      popup.alpha = 1 - progress;
+      return progress < 1;
+    });
+    
+    state.particles = state.particles.filter(particle => {
+      particle.x += particle.vx;
+      particle.y += particle.vy;
+      particle.life--;
+      return particle.life > 0;
+    });
+    
+    // Reduce screen shake
+    if (state.screenShake > 0) {
+      state.screenShake *= 0.9;
+      if (state.screenShake < 0.1) state.screenShake = 0;
     }
     
     // Update obstacles - all obstacles now move at the current speed
@@ -342,7 +492,7 @@ export default function Game() {
     });
   };
 
-  const activatePowerup = (powerupType: 'life' | 'speed' | 'invulnerability' | 'gun') => {
+  const activatePowerup = (powerupType: 'life' | 'speed' | 'invulnerability' | 'gun' | 'doublepoints') => {
     const state = gameStateRef.current;
     const now = Date.now();
     
@@ -361,6 +511,9 @@ export default function Game() {
       case 'gun':
         state.gunEndTime = now + 5000; // 5 seconds
         break;
+      case 'doublepoints':
+        state.doublePointsEndTime = now + 10000; // 10 seconds
+        break;
     }
   };
 
@@ -374,6 +527,12 @@ export default function Game() {
       state.obstacles = state.obstacles.filter(obstacle => {
         if (isColliding(state.player, obstacle)) {
           state.lives--;
+          state.streakCount = 0; // Reset streak on hit
+          state.comboCount = 0; // Reset combo on hit
+          addScreenShake(8);
+          createExplosion(obstacle.x + obstacle.width/2, obstacle.y + obstacle.height/2);
+          createParticles(obstacle.x + obstacle.width/2, obstacle.y + obstacle.height/2, '#FF0000', 8);
+          
           if (state.lives <= 0) {
             gameOver();
           }
@@ -388,6 +547,8 @@ export default function Game() {
     state.powerups = state.powerups.filter(powerup => {
       if (isColliding(state.player, powerup)) {
         activatePowerup(powerup.powerupType);
+        addScore(50, powerup.x + powerup.width/2, powerup.y + powerup.height/2);
+        createParticles(powerup.x + powerup.width/2, powerup.y + powerup.height/2, '#00FF00', 6);
         playPowerupSound();
         updateGameState();
         return false;
@@ -401,7 +562,22 @@ export default function Game() {
         if (isColliding(bullet, obstacle)) {
           // Remove both bullet and obstacle
           state.bullets = state.bullets.filter(b => b !== bullet);
-          state.score += 100;
+          
+          // Scoring and combo system
+          state.comboCount++;
+          state.streakCount++;
+          state.bestStreak = Math.max(state.bestStreak, state.streakCount);
+          state.comboEndTime = now + 2000; // 2 second combo window
+          
+          const basePoints = 100;
+          const comboBonus = state.comboCount > 1 ? state.comboCount * 25 : 0;
+          const totalPoints = basePoints + comboBonus;
+          
+          addScore(totalPoints, obstacle.x + obstacle.width/2, obstacle.y + obstacle.height/2);
+          createExplosion(obstacle.x + obstacle.width/2, obstacle.y + obstacle.height/2);
+          createParticles(obstacle.x + obstacle.width/2, obstacle.y + obstacle.height/2, '#FFD700', 10);
+          addScreenShake(3);
+          
           return false;
         }
         return true;
@@ -419,6 +595,14 @@ export default function Game() {
     // Disable anti-aliasing for pixel-perfect rendering
     ctx.imageSmoothingEnabled = false;
     
+    // Apply screen shake
+    if (state.screenShake > 0) {
+      const shakeX = (Math.random() - 0.5) * state.screenShake;
+      const shakeY = (Math.random() - 0.5) * state.screenShake;
+      ctx.save();
+      ctx.translate(shakeX, shakeY);
+    }
+    
     // Clear canvas
     ctx.fillStyle = '#000000';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -430,21 +614,31 @@ export default function Game() {
       ctx.fillRect((canvas.width * 2) / 3, i + (Date.now() / 10) % 60, 4, 30);
     }
 
-    // Draw player car using image
+    // Draw player car using image with invulnerability flashing
     const player = state.player;
-    const playerImage = imagesRef.current[player.type || 'mycar'];
-    if (playerImage) {
-      ctx.drawImage(
-        playerImage,
-        player.x,
-        player.y,
-        player.width,
-        player.height
-      );
-    } else {
-      // Fallback to green rectangle if image not loaded
-      ctx.fillStyle = '#00FF00';
-      ctx.fillRect(player.x, player.y, player.width, player.height);
+    
+    // Draw speed boost particles
+    if (Date.now() < state.speedBoostEndTime) {
+      createParticles(player.x + player.width/2, player.y + player.height, '#00FFFF', 3);
+    }
+    const isInvulnerable = Date.now() < state.invulnerabilityEndTime;
+    const shouldFlash = isInvulnerable && Math.floor(Date.now() / 100) % 2; // Flash every 100ms
+    
+    if (!shouldFlash) {
+      const playerImage = imagesRef.current[player.type || 'mycar'];
+      if (playerImage) {
+        ctx.drawImage(
+          playerImage,
+          player.x,
+          player.y,
+          player.width,
+          player.height
+        );
+      } else {
+        // Fallback to green rectangle if image not loaded
+        ctx.fillStyle = '#00FF00';
+        ctx.fillRect(player.x, player.y, player.width, player.height);
+      }
     }
 
     // Draw obstacles using images
@@ -484,6 +678,9 @@ export default function Game() {
         case 'gun':
           imageKey = 'gun';
           break;
+        case 'doublepoints':
+          imageKey = 'lightning'; // Use lightning icon for double points
+          break;
       }
       
       const powerupImage = imagesRef.current[imageKey];
@@ -505,6 +702,43 @@ export default function Game() {
       ctx.strokeRect(player.x - 2, player.y - 2, player.width + 4, player.height + 4);
     }
 
+    // Draw explosions
+    state.explosions.forEach(explosion => {
+      ctx.save();
+      ctx.globalAlpha = explosion.alpha;
+      ctx.strokeStyle = '#FFD700';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(explosion.x, explosion.y, explosion.radius, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+    });
+    
+    // Draw particles
+    state.particles.forEach(particle => {
+      ctx.save();
+      ctx.globalAlpha = particle.life / particle.maxLife;
+      ctx.fillStyle = particle.color;
+      ctx.fillRect(particle.x - 1, particle.y - 1, 2, 2);
+      ctx.restore();
+    });
+    
+    // Draw score popups
+    state.scorePopups.forEach(popup => {
+      ctx.save();
+      ctx.globalAlpha = popup.alpha;
+      ctx.fillStyle = popup.color;
+      ctx.font = 'bold 14px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(popup.text, popup.x, popup.y);
+      ctx.restore();
+    });
+    
+    // Restore screen shake transform
+    if (state.screenShake > 0) {
+      ctx.restore();
+    }
+    
     // Draw powerup timers below player car with pixel art icons
     const now = Date.now();
     let timerY = player.y + player.height + 20;
@@ -512,7 +746,7 @@ export default function Game() {
     ctx.font = '16px monospace';
     ctx.textAlign = 'left';
     
-    const drawPowerupIcon = (x: number, y: number, type: 'life' | 'speed' | 'invulnerability' | 'gun', scale = 0.6) => {
+    const drawPowerupIcon = (x: number, y: number, type: 'life' | 'speed' | 'invulnerability' | 'gun' | 'doublepoints', scale = 0.6) => {
       const size = 32 * scale;
       const iconX = x;
       const iconY = y - size + 4;
@@ -531,6 +765,9 @@ export default function Game() {
           break;
         case 'gun':
           imageKey = 'gun';
+          break;
+        case 'doublepoints':
+          imageKey = 'lightning';
           break;
       }
       
@@ -564,6 +801,15 @@ export default function Game() {
       drawPowerupIcon(iconX, timerY, 'gun');
       ctx.fillStyle = '#FF6B6B';
       ctx.fillText(`${timeLeft}s`, iconX + 25, timerY - 4);
+      timerY += 24;
+    }
+    
+    if (now < state.doublePointsEndTime) {
+      const timeLeft = Math.ceil((state.doublePointsEndTime - now) / 1000);
+      const iconX = player.x + player.width / 2 - 40;
+      drawPowerupIcon(iconX, timerY, 'speed'); // Use speed icon for double points
+      ctx.fillStyle = '#FF1493';
+      ctx.fillText(`2X ${timeLeft}s`, iconX + 25, timerY - 4);
     }
   };
 
@@ -579,8 +825,6 @@ export default function Game() {
     checkCollisions();
     render();
 
-    // Update score
-    state.score += 10;
     updateGameState();
 
     animationIdRef.current = requestAnimationFrame(gameLoop);
@@ -596,13 +840,23 @@ export default function Game() {
     state.obstacles = [];
     state.powerups = [];
     state.bullets = [];
+    state.explosions = [];
+    state.scorePopups = [];
+    state.particles = [];
     state.player = { x: 375, y: 500, width: 50, height: 80, speed: 5, type: 'mycar' };
     state.gameStartTime = Date.now();
     state.baseObstacleSpeed = 3;
     state.speedBoostEndTime = 0;
     state.invulnerabilityEndTime = 0;
     state.gunEndTime = 0;
+    state.doublePointsEndTime = 0;
     state.originalPlayerSpeed = 5;
+    state.comboCount = 0;
+    state.comboEndTime = 0;
+    state.streakCount = 0;
+    state.lastHitTime = Date.now();
+    state.screenShake = 0;
+    state.resumeCountdown = 0;
     updateGameState();
     startMusic();
     gameLoop();
@@ -622,12 +876,24 @@ export default function Game() {
 
   const resumeGame = () => {
     const state = gameStateRef.current;
-    state.isPaused = false;
-    if (audioRef.current && isMusicPlaying) {
-      audioRef.current.play().catch(e => console.log('Could not resume audio:', e));
-    }
+    state.resumeCountdown = 3; // Start 3-second countdown
     updateGameState();
-    gameLoop();
+    
+    const countdownInterval = setInterval(() => {
+      const currentState = gameStateRef.current;
+      currentState.resumeCountdown--;
+      updateGameState();
+      
+      if (currentState.resumeCountdown <= 0) {
+        clearInterval(countdownInterval);
+        currentState.isPaused = false;
+        if (audioRef.current && isMusicPlaying) {
+          audioRef.current.play().catch(e => console.log('Could not resume audio:', e));
+        }
+        updateGameState();
+        gameLoop();
+      }
+    }, 1000);
   };
 
   const gameOver = () => {
@@ -730,6 +996,15 @@ export default function Game() {
         style={{ imageRendering: 'pixelated' }}
       />
       
+      {/* Resume Countdown */}
+      {gameState.resumeCountdown > 0 && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-75 z-50">
+          <div className="text-6xl pixel-font text-white animate-pulse">
+            {gameState.resumeCountdown}
+          </div>
+        </div>
+      )}
+      
       {/* Game UI Overlay */}
       <div className="absolute top-0 left-0 right-0 p-4 game-ui">
         <div className="flex justify-between items-center max-w-4xl mx-auto">
@@ -757,6 +1032,16 @@ export default function Game() {
             <div className="pixel-font text-xl text-white">
               {gameState.score.toString().padStart(6, '0')}
             </div>
+            {gameState.comboCount > 1 && (
+              <div className="pixel-font text-sm text-cyan-400">
+                COMBO x{gameState.comboCount}
+              </div>
+            )}
+            {gameState.streakCount > 0 && (
+              <div className="pixel-font text-xs text-green-400">
+                Streak: {gameState.streakCount}
+              </div>
+            )}
           </div>
           
           {/* High Score */}
