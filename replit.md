@@ -145,6 +145,10 @@ Changelog:
   * Added missing double points powerup description with star icon
   * Improved visual consistency between start page and in-game powerup representations
   * Used proper icon sizing to match the retro 8-bit aesthetic
+- July 02, 2025. Shield icon update
+  * Updated shield powerup icon to new green chevron shield design
+  * Applied to both in-game powerups and start page display
+  * Enhanced visual consistency with 8-bit pixel art style
 ```
 
 ## User Preferences
