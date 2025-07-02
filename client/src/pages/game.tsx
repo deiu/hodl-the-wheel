@@ -1364,6 +1364,14 @@ export default function Game() {
                 >
                   {isMusicPlaying ? '🔊 MUSIC: ON' : '🔇 MUSIC: OFF'}
                 </Button>
+                
+                <Button 
+                  onClick={quitToMainMenu}
+                  className="retro-button text-sm"
+                  variant="destructive"
+                >
+                  QUIT TO MAIN MENU
+                </Button>
               </div>
             </CardContent>
           </Card>
