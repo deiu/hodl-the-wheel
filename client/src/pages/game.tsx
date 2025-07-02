@@ -15,6 +15,14 @@ interface GameObject {
   type?: 'red' | 'blue' | 'green' | 'mycar';
 }
 
+interface Powerup extends GameObject {
+  powerupType: 'life' | 'speed' | 'invulnerability' | 'gun';
+}
+
+interface Bullet extends GameObject {
+  // bullets move upward
+}
+
 interface GameState {
   isRunning: boolean;
   isPaused: boolean;
@@ -23,11 +31,17 @@ interface GameState {
   score: number;
   player: GameObject;
   obstacles: GameObject[];
-  powerups: GameObject[];
+  powerups: Powerup[];
+  bullets: Bullet[];
   lastObstacleSpawn: number;
   lastPowerupSpawn: number;
   gameStartTime: number;
   baseObstacleSpeed: number;
+  // Active powerup effects
+  speedBoostEndTime: number;
+  invulnerabilityEndTime: number;
+  gunEndTime: number;
+  originalPlayerSpeed: number;
 }
 
 export default function Game() {
@@ -44,10 +58,15 @@ export default function Game() {
     player: { x: 375, y: 500, width: 50, height: 80, speed: 5, type: 'mycar' },
     obstacles: [],
     powerups: [],
+    bullets: [],
     lastObstacleSpawn: 0,
     lastPowerupSpawn: 0,
     gameStartTime: 0,
-    baseObstacleSpeed: 3
+    baseObstacleSpeed: 3,
+    speedBoostEndTime: 0,
+    invulnerabilityEndTime: 0,
+    gunEndTime: 0,
+    originalPlayerSpeed: 5
   });
 
   const keysRef = useRef<Record<string, boolean>>({});
@@ -90,12 +109,21 @@ export default function Game() {
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     keysRef.current[e.key.toLowerCase()] = true;
-    if (e.key === ' ') {
+    
+    if (e.key === 'Escape') {
       e.preventDefault();
       if (gameStateRef.current.isRunning && !gameStateRef.current.isPaused) {
         pauseGame();
       } else if (gameStateRef.current.isPaused) {
         resumeGame();
+      }
+    }
+    
+    if (e.key === ' ') {
+      e.preventDefault();
+      const state = gameStateRef.current;
+      if (state.isRunning && !state.isPaused && Date.now() < state.gunEndTime) {
+        shootBullet();
       }
     }
   }, []);
@@ -148,6 +176,19 @@ export default function Game() {
     return state.baseObstacleSpeed + speedIncreases;
   };
 
+  const shootBullet = () => {
+    const state = gameStateRef.current;
+    const player = state.player;
+    
+    state.bullets.push({
+      x: player.x + player.width / 2 - 2,
+      y: player.y,
+      width: 4,
+      height: 10,
+      speed: 8
+    });
+  };
+
   const spawnObstacle = () => {
     const now = Date.now();
     const state = gameStateRef.current;
@@ -174,12 +215,16 @@ export default function Game() {
     const state = gameStateRef.current;
     
     if (now - state.lastPowerupSpawn > 8000 && Math.random() < 0.3) {
+      const powerupTypes: ('life' | 'speed' | 'invulnerability' | 'gun')[] = ['life', 'speed', 'invulnerability', 'gun'];
+      const randomType = powerupTypes[Math.floor(Math.random() * powerupTypes.length)];
+      
       state.powerups.push({
         x: Math.random() * (800 - 30),
         y: -30,
         width: 30,
         height: 30,
-        speed: 2
+        speed: 2,
+        powerupType: randomType
       });
       state.lastPowerupSpawn = now;
     }
@@ -187,6 +232,12 @@ export default function Game() {
 
   const updateGameObjects = () => {
     const state = gameStateRef.current;
+    const now = Date.now();
+    
+    // Update powerup effects
+    if (now > state.speedBoostEndTime && state.player.speed > state.originalPlayerSpeed) {
+      state.player.speed = state.originalPlayerSpeed;
+    }
     
     // Update obstacles - all obstacles now move at the current speed
     state.obstacles.forEach(obstacle => {
@@ -203,33 +254,77 @@ export default function Game() {
       powerup.y += powerup.speed;
       return powerup.y < 600;
     });
+
+    // Update bullets
+    state.bullets = state.bullets.filter(bullet => {
+      bullet.y -= bullet.speed;
+      return bullet.y > 0;
+    });
+  };
+
+  const activatePowerup = (powerupType: 'life' | 'speed' | 'invulnerability' | 'gun') => {
+    const state = gameStateRef.current;
+    const now = Date.now();
+    
+    switch (powerupType) {
+      case 'life':
+        state.lives = Math.min(3, state.lives + 1);
+        state.score += 500;
+        break;
+      case 'speed':
+        state.player.speed = state.originalPlayerSpeed * 1.5;
+        state.speedBoostEndTime = now + 5000; // 5 seconds
+        break;
+      case 'invulnerability':
+        state.invulnerabilityEndTime = now + 3000; // 3 seconds
+        break;
+      case 'gun':
+        state.gunEndTime = now + 5000; // 5 seconds
+        break;
+    }
   };
 
   const checkCollisions = () => {
     const state = gameStateRef.current;
+    const now = Date.now();
+    const isInvulnerable = now < state.invulnerabilityEndTime;
     
-    // Check obstacle collisions
-    state.obstacles = state.obstacles.filter(obstacle => {
-      if (isColliding(state.player, obstacle)) {
-        state.lives--;
-        if (state.lives <= 0) {
-          gameOver();
+    // Check obstacle collisions (skip if invulnerable)
+    if (!isInvulnerable) {
+      state.obstacles = state.obstacles.filter(obstacle => {
+        if (isColliding(state.player, obstacle)) {
+          state.lives--;
+          if (state.lives <= 0) {
+            gameOver();
+          }
+          updateGameState();
+          return false;
         }
+        return true;
+      });
+    }
+
+    // Check powerup collisions
+    state.powerups = state.powerups.filter(powerup => {
+      if (isColliding(state.player, powerup)) {
+        activatePowerup(powerup.powerupType);
         updateGameState();
         return false;
       }
       return true;
     });
 
-    // Check powerup collisions
-    state.powerups = state.powerups.filter(powerup => {
-      if (isColliding(state.player, powerup)) {
-        state.lives = Math.min(3, state.lives + 1);
-        state.score += 500;
-        updateGameState();
-        return false;
-      }
-      return true;
+    // Check bullet-obstacle collisions
+    state.bullets.forEach(bullet => {
+      state.obstacles = state.obstacles.filter(obstacle => {
+        if (isColliding(bullet, obstacle)) {
+          // Remove both bullet and obstacle
+          state.bullets = state.bullets.filter(b => b !== bullet);
+          state.score += 100;
+          return false;
+        }
+        return true;
+      });
     });
   };
 
@@ -287,15 +382,57 @@ export default function Game() {
       }
     });
 
-    // Draw powerups
+    // Draw powerups with different colors/icons
     state.powerups.forEach(powerup => {
-      ctx.fillStyle = '#FFFF00';
-      ctx.fillRect(powerup.x, powerup.y, powerup.width, powerup.height);
-      ctx.fillStyle = '#FF69B4';
-      ctx.fillRect(powerup.x + 5, powerup.y + 5, 20, 5);
-      ctx.fillRect(powerup.x + 10, powerup.y + 10, 10, 10);
-      ctx.fillRect(powerup.x + 5, powerup.y + 20, 20, 5);
+      const { x, y, width, height, powerupType } = powerup;
+      
+      switch (powerupType) {
+        case 'life':
+          // Draw heart icon
+          ctx.fillStyle = '#FF1493';
+          ctx.fillRect(x + 8, y + 5, 6, 4);
+          ctx.fillRect(x + 16, y + 5, 6, 4);
+          ctx.fillRect(x + 6, y + 7, 18, 8);
+          ctx.fillRect(x + 8, y + 15, 14, 6);
+          ctx.fillRect(x + 10, y + 21, 10, 4);
+          ctx.fillRect(x + 12, y + 25, 6, 2);
+          break;
+        case 'speed':
+          // Draw lightning bolt
+          ctx.fillStyle = '#00FFFF';
+          ctx.fillRect(x + 10, y + 3, 8, 24);
+          ctx.fillRect(x + 6, y + 8, 12, 4);
+          ctx.fillRect(x + 12, y + 18, 12, 4);
+          break;
+        case 'invulnerability':
+          // Draw shield
+          ctx.fillStyle = '#FFD700';
+          ctx.fillRect(x + 5, y + 5, 20, 20);
+          ctx.fillStyle = '#FFA500';
+          ctx.fillRect(x + 8, y + 8, 14, 14);
+          break;
+        case 'gun':
+          // Draw gun icon
+          ctx.fillStyle = '#8B4513';
+          ctx.fillRect(x + 8, y + 10, 14, 6);
+          ctx.fillRect(x + 20, y + 12, 6, 2);
+          ctx.fillRect(x + 6, y + 14, 4, 8);
+          break;
+      }
     });
+
+    // Draw bullets
+    state.bullets.forEach(bullet => {
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
+    });
+
+    // Draw invulnerability effect
+    if (Date.now() < state.invulnerabilityEndTime) {
+      ctx.strokeStyle = '#FFD700';
+      ctx.lineWidth = 3;
+      ctx.strokeRect(player.x - 2, player.y - 2, player.width + 4, player.height + 4);
+    }
   };
 
   const gameLoop = () => {
@@ -326,9 +463,14 @@ export default function Game() {
     state.score = 0;
     state.obstacles = [];
     state.powerups = [];
+    state.bullets = [];
     state.player = { x: 375, y: 500, width: 50, height: 80, speed: 5, type: 'mycar' };
     state.gameStartTime = Date.now();
     state.baseObstacleSpeed = 3;
+    state.speedBoostEndTime = 0;
+    state.invulnerabilityEndTime = 0;
+    state.gunEndTime = 0;
+    state.originalPlayerSpeed = 5;
     updateGameState();
     gameLoop();
   };
@@ -398,8 +540,20 @@ export default function Game() {
               <div className="grid grid-cols-2 gap-4 text-left">
                 <div className="text-xs text-gray-300">ARROW KEYS: Move</div>
                 <div className="text-xs text-gray-300">WASD: Move</div>
-                <div className="text-xs text-gray-300">SPACE: Pause</div>
-                <div className="text-xs text-gray-300">ESC: Menu</div>
+                <div className="text-xs text-gray-300">ESC: Pause/Menu</div>
+                <div className="text-xs text-gray-300">SPACE: Shoot (with gun powerup)</div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="mb-8 bg-gray-900 border-2 border-gray-600">
+            <CardContent className="p-4">
+              <div className="text-sm text-white mb-4">POWERUPS</div>
+              <div className="grid grid-cols-2 gap-2 text-left">
+                <div className="text-xs text-pink-400">♥ Life: +1 Life</div>
+                <div className="text-xs text-cyan-400">⚡ Speed: 5s Boost</div>
+                <div className="text-xs text-yellow-400">🛡 Shield: 3s Invulnerable</div>
+                <div className="text-xs text-red-400">🔫 Gun: 5s Shooting</div>
               </div>
             </CardContent>
           </Card>
@@ -460,6 +614,25 @@ export default function Game() {
               {localHighScore.toString().padStart(6, '0')}
             </div>
           </div>
+        </div>
+        
+        {/* Active Powerups Indicator */}
+        <div className="flex justify-center mt-2 space-x-4">
+          {Date.now() < gameState.speedBoostEndTime && (
+            <div className="pixel-font text-xs text-cyan-400 bg-black bg-opacity-75 px-2 py-1">
+              SPEED BOOST
+            </div>
+          )}
+          {Date.now() < gameState.invulnerabilityEndTime && (
+            <div className="pixel-font text-xs text-yellow-400 bg-black bg-opacity-75 px-2 py-1">
+              INVULNERABLE
+            </div>
+          )}
+          {Date.now() < gameState.gunEndTime && (
+            <div className="pixel-font text-xs text-red-400 bg-black bg-opacity-75 px-2 py-1">
+              GUN ACTIVE
+            </div>
+          )}
         </div>
       </div>
       
