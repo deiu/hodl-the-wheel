@@ -219,10 +219,10 @@ export default function Game() {
       const randomType = powerupTypes[Math.floor(Math.random() * powerupTypes.length)];
       
       state.powerups.push({
-        x: Math.random() * (800 - 30),
-        y: -30,
-        width: 30,
-        height: 30,
+        x: Math.random() * (800 - 42),
+        y: -42,
+        width: 42,
+        height: 42,
         speed: 2,
         powerupType: randomType
       });
@@ -382,41 +382,51 @@ export default function Game() {
       }
     });
 
-    // Draw powerups with different colors/icons
+    // Draw powerups with bigger, consistent icons
     state.powerups.forEach(powerup => {
       const { x, y, width, height, powerupType } = powerup;
       
+      // Background circle for all powerups
+      ctx.fillStyle = '#000000';
+      ctx.fillRect(x, y, width, height);
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(x + 2, y + 2, width - 4, height - 4);
+      
       switch (powerupType) {
         case 'life':
-          // Draw heart icon
+          // Draw bigger heart icon
           ctx.fillStyle = '#FF1493';
-          ctx.fillRect(x + 8, y + 5, 6, 4);
-          ctx.fillRect(x + 16, y + 5, 6, 4);
-          ctx.fillRect(x + 6, y + 7, 18, 8);
-          ctx.fillRect(x + 8, y + 15, 14, 6);
-          ctx.fillRect(x + 10, y + 21, 10, 4);
-          ctx.fillRect(x + 12, y + 25, 6, 2);
+          ctx.fillRect(x + 10, y + 8, 10, 6);
+          ctx.fillRect(x + 22, y + 8, 10, 6);
+          ctx.fillRect(x + 8, y + 12, 26, 12);
+          ctx.fillRect(x + 10, y + 24, 22, 8);
+          ctx.fillRect(x + 12, y + 32, 18, 6);
+          ctx.fillRect(x + 16, y + 38, 10, 4);
           break;
         case 'speed':
-          // Draw lightning bolt
+          // Draw bigger lightning bolt
           ctx.fillStyle = '#00FFFF';
-          ctx.fillRect(x + 10, y + 3, 8, 24);
-          ctx.fillRect(x + 6, y + 8, 12, 4);
-          ctx.fillRect(x + 12, y + 18, 12, 4);
+          ctx.fillRect(x + 15, y + 6, 12, 36);
+          ctx.fillRect(x + 9, y + 14, 18, 6);
+          ctx.fillRect(x + 18, y + 30, 18, 6);
           break;
         case 'invulnerability':
-          // Draw shield
+          // Draw bigger shield
           ctx.fillStyle = '#FFD700';
-          ctx.fillRect(x + 5, y + 5, 20, 20);
+          ctx.fillRect(x + 8, y + 8, 26, 26);
           ctx.fillStyle = '#FFA500';
-          ctx.fillRect(x + 8, y + 8, 14, 14);
+          ctx.fillRect(x + 12, y + 12, 18, 18);
+          ctx.fillStyle = '#FFD700';
+          ctx.fillRect(x + 15, y + 15, 12, 12);
           break;
         case 'gun':
-          // Draw gun icon
+          // Draw bigger gun icon
           ctx.fillStyle = '#8B4513';
-          ctx.fillRect(x + 8, y + 10, 14, 6);
-          ctx.fillRect(x + 20, y + 12, 6, 2);
-          ctx.fillRect(x + 6, y + 14, 4, 8);
+          ctx.fillRect(x + 12, y + 16, 20, 8);
+          ctx.fillRect(x + 30, y + 18, 8, 4);
+          ctx.fillRect(x + 10, y + 22, 6, 12);
+          ctx.fillStyle = '#A0522D';
+          ctx.fillRect(x + 14, y + 18, 16, 4);
           break;
       }
     });
@@ -432,6 +442,34 @@ export default function Game() {
       ctx.strokeStyle = '#FFD700';
       ctx.lineWidth = 3;
       ctx.strokeRect(player.x - 2, player.y - 2, player.width + 4, player.height + 4);
+    }
+
+    // Draw powerup timers below player car
+    const now = Date.now();
+    let timerY = player.y + player.height + 10;
+    
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = '8px monospace';
+    ctx.textAlign = 'center';
+    
+    if (now < state.speedBoostEndTime) {
+      const timeLeft = Math.ceil((state.speedBoostEndTime - now) / 1000);
+      ctx.fillStyle = '#00FFFF';
+      ctx.fillText(`⚡ ${timeLeft}s`, player.x + player.width / 2, timerY);
+      timerY += 12;
+    }
+    
+    if (now < state.invulnerabilityEndTime) {
+      const timeLeft = Math.ceil((state.invulnerabilityEndTime - now) / 1000);
+      ctx.fillStyle = '#FFD700';
+      ctx.fillText(`🛡 ${timeLeft}s`, player.x + player.width / 2, timerY);
+      timerY += 12;
+    }
+    
+    if (now < state.gunEndTime) {
+      const timeLeft = Math.ceil((state.gunEndTime - now) / 1000);
+      ctx.fillStyle = '#FF6B6B';
+      ctx.fillText(`🔫 ${timeLeft}s`, player.x + player.width / 2, timerY);
     }
   };
 
