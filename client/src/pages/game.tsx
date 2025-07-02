@@ -10,12 +10,10 @@ import shootSound from "@assets/8-bit-shoot_1751479421238.mp3";
 import powerupSound from "@assets/8-bit-powerup_1751479421239.mp3";
 import gameOverSound from "@assets/game-over_1751484756101.mp3";
 import shieldIcon from "@assets/warden_1751489700206.png";
-import btcIcon from "@assets/btc_1751490458151.png";
-import ethIcon from "@assets/eth_1751490458151.png";
-import solIcon from "@assets/sol_1751490458151.png";
-import suiIcon from "@assets/sui_1751490458151.png";
-import uniIcon from "@assets/uni_1751490458151.png";
-import usdcIcon from "@assets/usdc_1751490458151.png";
+import btcIcon from "@assets/BTC_1751491424662.png";
+import ethIcon from "@assets/ETH_1751491424662.png";
+import bnbIcon from "@assets/BNB_1751491424662.png";
+import dogeIcon from "@assets/DOGE_1751491424662.png";
 
 interface GameObject {
   x: number;
@@ -63,7 +61,7 @@ interface Particle {
 }
 
 interface Coin extends GameObject {
-  coinType: 'btc' | 'eth' | 'sol' | 'sui' | 'uni' | 'usdc';
+  coinType: 'btc' | 'eth' | 'bnb' | 'doge';
   points: number;
 }
 
@@ -168,10 +166,8 @@ export default function Game() {
         { key: 'shield', src: shieldIcon },
         { key: 'btc', src: btcIcon },
         { key: 'eth', src: ethIcon },
-        { key: 'sol', src: solIcon },
-        { key: 'sui', src: suiIcon },
-        { key: 'uni', src: uniIcon },
-        { key: 'usdc', src: usdcIcon }
+        { key: 'bnb', src: bnbIcon },
+        { key: 'doge', src: dogeIcon }
       ].map(({ key, src }) => {
         return new Promise<void>((resolve) => {
           const img = new Image();
@@ -504,10 +500,8 @@ export default function Game() {
       const coinTypes: { type: Coin['coinType'], points: number }[] = [
         { type: 'btc', points: 100 },    // Bitcoin - highest value
         { type: 'eth', points: 75 },     // Ethereum - second highest  
-        { type: 'sol', points: 50 },     // Solana - third
-        { type: 'sui', points: 25 },     // Sui - lower value
-        { type: 'uni', points: 25 },     // Uniswap - same as Sui
-        { type: 'usdc', points: 25 }     // USDC - same as Sui/Uni
+        { type: 'bnb', points: 25 },     // Binance Coin - lower value
+        { type: 'doge', points: 25 }     // Dogecoin - same as BNB
       ];
       
       const randomCoinData = coinTypes[Math.floor(Math.random() * coinTypes.length)];
