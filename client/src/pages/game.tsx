@@ -582,9 +582,8 @@ export default function Game() {
     });
 
     // Update powerups
-    state.powerups = state.powerups.filter(powerup => {
+    state.powerups.forEach(powerup => {
       powerup.y += powerup.speed;
-      return powerup.y < 600;
     });
     
     // Update coins
