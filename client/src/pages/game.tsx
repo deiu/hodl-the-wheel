@@ -232,9 +232,8 @@ export default function Game() {
   }, [isMusicPlaying]);
 
   const startMusic = useCallback(() => {
-    if (audioRef.current && !isMusicPlaying) {
+    if (audioRef.current && isMusicPlaying) {
       audioRef.current.play().catch(e => console.log('Could not play audio:', e));
-      setIsMusicPlaying(true);
     }
   }, [isMusicPlaying]);
 
