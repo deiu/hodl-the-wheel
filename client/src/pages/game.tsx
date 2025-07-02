@@ -9,11 +9,8 @@ import backgroundMusic from "@assets/SLOWER-TEMPO2019-12-11_-_Retro_Platforming_
 import shootSound from "@assets/8-bit-shoot_1751479421238.mp3";
 import powerupSound from "@assets/8-bit-powerup_1751479421239.mp3";
 import gameOverSound from "@assets/game-over_1751484756101.mp3";
-import heartIcon from "@assets/life_1751487957040.png";
 import lightningIcon from "@assets/speed_1751487957040.png";
-import shieldIcon from "@assets/warden_1751487957040.png";
-import gunIcon from "@assets/gun_1751487957040.png";
-import expIcon from "@assets/exp_1751487957040.png";
+import shieldIcon from "@assets/warden_1751488639462.png";
 
 interface GameObject {
   x: number;
@@ -154,11 +151,8 @@ export default function Game() {
         { key: 'blue', src: blueCar },
         { key: 'green', src: greenCar },
         { key: 'mycar', src: myCar },
-        { key: 'heart', src: heartIcon },
         { key: 'lightning', src: lightningIcon },
-        { key: 'shield', src: shieldIcon },
-        { key: 'gun', src: gunIcon },
-        { key: 'exp', src: expIcon }
+        { key: 'shield', src: shieldIcon }
       ].map(({ key, src }) => {
         return new Promise<void>((resolve) => {
           const img = new Image();
@@ -715,33 +709,39 @@ export default function Game() {
       }
     });
 
-    // Draw powerups with image icons (using transparency)
+    // Draw powerups with icons (mix of images and emojis)
     state.powerups.forEach(powerup => {
       const { x, y, width, height, powerupType } = powerup;
       
-      // Draw the appropriate powerup image without background
-      let imageKey = '';
+      // Draw the appropriate powerup icon
       switch (powerupType) {
         case 'life':
-          imageKey = 'heart';
+          ctx.font = `${height}px monospace`;
+          ctx.textAlign = 'center';
+          ctx.fillText('❤️', x + width/2, y + height - 2);
           break;
         case 'speed':
-          imageKey = 'lightning';
+          const lightningImage = imagesRef.current['lightning'];
+          if (lightningImage) {
+            ctx.drawImage(lightningImage, x, y, width, height);
+          }
           break;
         case 'invulnerability':
-          imageKey = 'shield';
+          const shieldImage = imagesRef.current['shield'];
+          if (shieldImage) {
+            ctx.drawImage(shieldImage, x, y, width, height);
+          }
           break;
         case 'gun':
-          imageKey = 'gun';
+          ctx.font = `${height}px monospace`;
+          ctx.textAlign = 'center';
+          ctx.fillText('🔫', x + width/2, y + height - 2);
           break;
         case 'doublepoints':
-          imageKey = 'exp'; // Use exp icon for double points
+          ctx.font = `${height}px monospace`;
+          ctx.textAlign = 'center';
+          ctx.fillText('⭐', x + width/2, y + height - 2);
           break;
-      }
-      
-      const powerupImage = imagesRef.current[imageKey];
-      if (powerupImage) {
-        ctx.drawImage(powerupImage, x, y, width, height);
       }
     });
 
@@ -837,29 +837,35 @@ export default function Game() {
       const iconX = x;
       const iconY = y - size + 4;
       
-      // Draw the appropriate powerup image with transparency (no background)
-      let imageKey = '';
+      // Draw the appropriate powerup icon (mix of images and emojis)
       switch (type) {
         case 'life':
-          imageKey = 'heart';
+          ctx.font = `${size}px monospace`;
+          ctx.textAlign = 'left';
+          ctx.fillText('❤️', iconX, iconY + size - 2);
           break;
         case 'speed':
-          imageKey = 'lightning';
+          const lightningImage = imagesRef.current['lightning'];
+          if (lightningImage) {
+            ctx.drawImage(lightningImage, iconX, iconY, size, size);
+          }
           break;
         case 'invulnerability':
-          imageKey = 'shield';
+          const shieldImage = imagesRef.current['shield'];
+          if (shieldImage) {
+            ctx.drawImage(shieldImage, iconX, iconY, size, size);
+          }
           break;
         case 'gun':
-          imageKey = 'gun';
+          ctx.font = `${size}px monospace`;
+          ctx.textAlign = 'left';
+          ctx.fillText('🔫', iconX, iconY + size - 2);
           break;
         case 'doublepoints':
-          imageKey = 'exp';
+          ctx.font = `${size}px monospace`;
+          ctx.textAlign = 'left';
+          ctx.fillText('⭐', iconX, iconY + size - 2);
           break;
-      }
-      
-      const powerupImage = imagesRef.current[imageKey];
-      if (powerupImage) {
-        ctx.drawImage(powerupImage, iconX, iconY, size, size);
       }
     };
     
@@ -1068,7 +1074,7 @@ export default function Game() {
               <div className="text-sm text-white mb-4">POWERUPS</div>
               <div className="grid grid-cols-2 gap-2 text-left">
                 <div className="text-xs text-pink-400 flex items-center gap-2">
-                  <img src={heartIcon} alt="Life" className="w-4 h-4" />
+                  <span className="text-base">❤️</span>
                   Life: +1 Life
                 </div>
                 <div className="text-xs text-cyan-400 flex items-center gap-2">
@@ -1080,11 +1086,11 @@ export default function Game() {
                   Warden Protection
                 </div>
                 <div className="text-xs text-red-400 flex items-center gap-2">
-                  <img src={gunIcon} alt="Gun" className="w-4 h-4" />
+                  <span className="text-base">🔫</span>
                   Gun: 5s Shooting
                 </div>
                 <div className="text-xs text-purple-400 flex items-center gap-2 col-span-2 justify-center">
-                  <img src={expIcon} alt="Double Points" className="w-4 h-4" />
+                  <span className="text-base">⭐</span>
                   Double Points: 10s 2x Score
                 </div>
               </div>

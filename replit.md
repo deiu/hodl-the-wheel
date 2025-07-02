@@ -165,6 +165,11 @@ Changelog:
   * Gun: New detailed gray pistol icon
   * Double Points: New bright yellow star icon
   * All icons maintain consistent pixel art style and transparent backgrounds
+- July 02, 2025. Icon display system update
+  * Changed to hybrid icon system: emojis for life (❤️), gun (🔫), and double points (⭐)
+  * Kept PNG images for speed lightning bolt and warden protection shield
+  * Updated both in-game powerups and start page to use consistent icon types
+  * Enhanced visual consistency while reducing image dependencies
 ```
 
 ## User Preferences
