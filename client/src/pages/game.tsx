@@ -10,6 +10,12 @@ import shootSound from "@assets/8-bit-shoot_1751479421238.mp3";
 import powerupSound from "@assets/8-bit-powerup_1751479421239.mp3";
 import gameOverSound from "@assets/game-over_1751484756101.mp3";
 import shieldIcon from "@assets/warden_1751489700206.png";
+import btcIcon from "@assets/btc_1751490458151.png";
+import ethIcon from "@assets/eth_1751490458151.png";
+import solIcon from "@assets/sol_1751490458151.png";
+import suiIcon from "@assets/sui_1751490458151.png";
+import uniIcon from "@assets/uni_1751490458151.png";
+import usdcIcon from "@assets/usdc_1751490458151.png";
 
 interface GameObject {
   x: number;
@@ -56,6 +62,11 @@ interface Particle {
   color: string;
 }
 
+interface Coin extends GameObject {
+  coinType: 'btc' | 'eth' | 'sol' | 'sui' | 'uni' | 'usdc';
+  points: number;
+}
+
 interface GameState {
   isRunning: boolean;
   isPaused: boolean;
@@ -66,11 +77,13 @@ interface GameState {
   obstacles: GameObject[];
   powerups: Powerup[];
   bullets: Bullet[];
+  coins: Coin[];
   explosions: Explosion[];
   scorePopups: ScorePopup[];
   particles: Particle[];
   lastObstacleSpawn: number;
   lastPowerupSpawn: number;
+  lastCoinSpawn: number;
   gameStartTime: number;
   baseObstacleSpeed: number;
   // Active powerup effects
@@ -113,11 +126,13 @@ export default function Game() {
     obstacles: [],
     powerups: [],
     bullets: [],
+    coins: [],
     explosions: [],
     scorePopups: [],
     particles: [],
     lastObstacleSpawn: 0,
     lastPowerupSpawn: 0,
+    lastCoinSpawn: 0,
     gameStartTime: 0,
     baseObstacleSpeed: 3,
     speedBoostEndTime: 0,
@@ -150,7 +165,13 @@ export default function Game() {
         { key: 'blue', src: blueCar },
         { key: 'green', src: greenCar },
         { key: 'mycar', src: myCar },
-        { key: 'shield', src: shieldIcon }
+        { key: 'shield', src: shieldIcon },
+        { key: 'btc', src: btcIcon },
+        { key: 'eth', src: ethIcon },
+        { key: 'sol', src: solIcon },
+        { key: 'sui', src: suiIcon },
+        { key: 'uni', src: uniIcon },
+        { key: 'usdc', src: usdcIcon }
       ].map(({ key, src }) => {
         return new Promise<void>((resolve) => {
           const img = new Image();
@@ -475,6 +496,37 @@ export default function Game() {
     }
   };
 
+  const spawnCoin = () => {
+    const now = Date.now();
+    const state = gameStateRef.current;
+    
+    if (now - state.lastCoinSpawn > 3000 && Math.random() < 0.4) { // Spawn every 3 seconds, 40% chance
+      const coinTypes: { type: Coin['coinType'], points: number }[] = [
+        { type: 'btc', points: 100 },    // Bitcoin - highest value
+        { type: 'eth', points: 75 },     // Ethereum - second highest  
+        { type: 'sol', points: 50 },     // Solana - third
+        { type: 'sui', points: 25 },     // Sui - lower value
+        { type: 'uni', points: 25 },     // Uniswap - same as Sui
+        { type: 'usdc', points: 25 }     // USDC - same as Sui/Uni
+      ];
+      
+      const randomCoinData = coinTypes[Math.floor(Math.random() * coinTypes.length)];
+      
+      const coin: Coin = {
+        x: Math.random() * (1200 - 30),
+        y: -30,
+        width: 30,
+        height: 30,
+        speed: 3,
+        coinType: randomCoinData.type,
+        points: randomCoinData.points
+      };
+      
+      state.coins.push(coin);
+      state.lastCoinSpawn = now;
+    }
+  };
+
   const updateGameObjects = () => {
     const state = gameStateRef.current;
     const now = Date.now();
@@ -539,6 +591,12 @@ export default function Game() {
     state.powerups = state.powerups.filter(powerup => {
       powerup.y += powerup.speed;
       return powerup.y < 600;
+    });
+    
+    // Update coins
+    state.coins = state.coins.filter(coin => {
+      coin.y += coin.speed;
+      return coin.y < 800;
     });
 
     // Update bullets
@@ -606,6 +664,18 @@ export default function Game() {
         addScore(50, powerup.x + powerup.width/2, powerup.y + powerup.height/2);
         createParticles(powerup.x + powerup.width/2, powerup.y + powerup.height/2, '#00FF00', 6);
         playPowerupSound();
+        updateGameState();
+        return false;
+      }
+      return true;
+    });
+
+    // Check coin collisions
+    state.coins = state.coins.filter(coin => {
+      if (isColliding(state.player, coin)) {
+        addScore(coin.points, coin.x + coin.width/2, coin.y + coin.height/2);
+        createParticles(coin.x + coin.width/2, coin.y + coin.height/2, '#FFD700', 4);
+        playPowerupSound(); // Reuse powerup sound for coins
         updateGameState();
         return false;
       }
@@ -756,6 +826,21 @@ export default function Game() {
           ctx.textAlign = 'center';
           ctx.fillText('⭐', x + width/2, y + height - 2);
           break;
+      }
+    });
+
+    // Draw coins
+    state.coins.forEach(coin => {
+      const { x, y, width, height, coinType } = coin;
+      const coinImage = imagesRef.current[coinType];
+      if (coinImage) {
+        ctx.drawImage(coinImage, x, y, width, height);
+      } else {
+        // Fallback to colored circle if image not loaded
+        ctx.fillStyle = '#FFD700';
+        ctx.beginPath();
+        ctx.arc(x + width/2, y + height/2, width/2, 0, 2 * Math.PI);
+        ctx.fill();
       }
     });
 
@@ -926,6 +1011,7 @@ export default function Game() {
     handleInput();
     spawnObstacle();
     spawnPowerup();
+    spawnCoin();
     updateGameObjects();
     checkCollisions();
     render();
@@ -945,12 +1031,16 @@ export default function Game() {
     state.obstacles = [];
     state.powerups = [];
     state.bullets = [];
+    state.coins = [];
     state.explosions = [];
     state.scorePopups = [];
     state.particles = [];
     state.player = { x: 575, y: 700, width: 50, height: 80, speed: 5, type: 'mycar' };
     state.gameStartTime = Date.now();
     state.baseObstacleSpeed = 3;
+    state.lastObstacleSpawn = 0;
+    state.lastPowerupSpawn = 0;
+    state.lastCoinSpawn = 0;
     state.speedBoostEndTime = 0;
     state.invulnerabilityEndTime = 0;
     state.gunEndTime = 0;

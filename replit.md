@@ -189,6 +189,12 @@ Changelog:
   * Updated HTML title, meta description, and all game UI text
   * Migrated localStorage keys from "carRush*" to "wardenRacer*" prefix
   * Maintained all functionality while establishing new brand identity
+- July 02, 2025. Cryptocurrency coin collection system
+  * Added 6 cryptocurrency coins as collectible items: BTC, ETH, SOL, SUI, UNI, USDC
+  * Implemented tiered point system: BTC (100pts), ETH (75pts), SOL (50pts), SUI/UNI/USDC (25pts)
+  * Coins spawn every 3 seconds with 40% probability, separate from powerups
+  * Added coin collision detection with golden particle effects and sound feedback
+  * Integrated coin rendering system with PNG cryptocurrency logos and fallback graphics
 ```
 
 ## User Preferences
