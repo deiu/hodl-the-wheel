@@ -6,6 +6,8 @@ import greenCar from "@assets/green_1751475426603.png";
 import redCar from "@assets/red_1751475426603.png";
 import myCar from "@assets/mycar_1751475557453.png";
 import backgroundMusic from "@assets/SLOWER-TEMPO2019-12-11_-_Retro_Platforming_-_David_Fesliyan_1751478645287.mp3";
+import shootSound from "@assets/8-bit-shoot_1751479421238.mp3";
+import powerupSound from "@assets/8-bit-powerup_1751479421239.mp3";
 
 interface GameObject {
   x: number;
@@ -49,6 +51,8 @@ export default function Game() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imagesRef = useRef<Record<string, HTMLImageElement>>({});
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const shootAudioRef = useRef<HTMLAudioElement | null>(null);
+  const powerupAudioRef = useRef<HTMLAudioElement | null>(null);
   const [imagesLoaded, setImagesLoaded] = useState(false);
   const [isMusicPlaying, setIsMusicPlaying] = useState(false);
   
@@ -103,12 +107,20 @@ export default function Game() {
       setImagesLoaded(true);
     };
 
-    // Initialize background music
+    // Initialize all audio
     const initializeAudio = () => {
       const audio = new Audio(backgroundMusic);
       audio.loop = true;
       audio.volume = 0.5;
       audioRef.current = audio;
+
+      const shootAudio = new Audio(shootSound);
+      shootAudio.volume = 0.7;
+      shootAudioRef.current = shootAudio;
+
+      const powerupAudio = new Audio(powerupSound);
+      powerupAudio.volume = 0.8;
+      powerupAudioRef.current = powerupAudio;
     };
 
     loadImages();
@@ -145,6 +157,20 @@ export default function Game() {
       setIsMusicPlaying(false);
     }
   }, [isMusicPlaying]);
+
+  const playShootSound = useCallback(() => {
+    if (shootAudioRef.current) {
+      shootAudioRef.current.currentTime = 0;
+      shootAudioRef.current.play().catch(e => console.log('Could not play shoot sound:', e));
+    }
+  }, []);
+
+  const playPowerupSound = useCallback(() => {
+    if (powerupAudioRef.current) {
+      powerupAudioRef.current.currentTime = 0;
+      powerupAudioRef.current.play().catch(e => console.log('Could not play powerup sound:', e));
+    }
+  }, []);
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     keysRef.current[e.key.toLowerCase()] = true;
@@ -226,6 +252,8 @@ export default function Game() {
       height: 10,
       speed: 8
     });
+    
+    playShootSound();
   };
 
   const spawnObstacle = () => {
@@ -347,6 +375,7 @@ export default function Game() {
     state.powerups = state.powerups.filter(powerup => {
       if (isColliding(state.player, powerup)) {
         activatePowerup(powerup.powerupType);
+        playPowerupSound();
         updateGameState();
         return false;
       }
