@@ -302,7 +302,7 @@ export default function Game() {
 
   // Touch controls for mobile
   const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
-  const touchKeysRef = useRef<Record<string, boolean>>({});
+  const touchTargetRef = useRef<{ targetX: number; targetY: number; isActive: boolean }>({ targetX: 0, targetY: 0, isActive: false });
   const [showTouchFeedback, setShowTouchFeedback] = useState(false);
   const [touchDebugInfo, setTouchDebugInfo] = useState('');
 
@@ -335,39 +335,22 @@ export default function Game() {
     if (!touchStartRef.current) return;
     
     const touch = e.touches[0];
-    const deltaX = touch.clientX - touchStartRef.current.x;
-    const deltaY = touch.clientY - touchStartRef.current.y;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
     
-    // Clear previous touch keys
-    touchKeysRef.current = {};
+    // Get canvas bounds for accurate touch position mapping
+    const rect = canvas.getBoundingClientRect();
+    const canvasX = (touch.clientX - rect.left) * (canvas.width / rect.width);
+    const canvasY = (touch.clientY - rect.top) * (canvas.height / rect.height);
     
-    // Reduced minimum swipe distance for more responsive control
-    const minDistance = 15;
+    // Store the target position for the car to move towards
+    touchTargetRef.current = {
+      targetX: Math.max(0, Math.min(canvas.width - 40, canvasX - 20)), // Car width is 40px
+      targetY: Math.max(0, Math.min(canvas.height - 40, canvasY - 20)), // Car height is 40px
+      isActive: true
+    };
     
-    // Set movement keys based on swipe direction with improved sensitivity
-    if (Math.abs(deltaX) > minDistance) {
-      if (deltaX > 0) {
-        touchKeysRef.current['arrowright'] = true;
-        touchKeysRef.current['d'] = true;
-        setTouchDebugInfo(`RIGHT ${deltaX}px`);
-      } else {
-        touchKeysRef.current['arrowleft'] = true;
-        touchKeysRef.current['a'] = true;
-        setTouchDebugInfo(`LEFT ${Math.abs(deltaX)}px`);
-      }
-    }
-    
-    if (Math.abs(deltaY) > minDistance) {
-      if (deltaY > 0) {
-        touchKeysRef.current['arrowdown'] = true;
-        touchKeysRef.current['s'] = true;
-        setTouchDebugInfo(`DOWN ${deltaY}px`);
-      } else {
-        touchKeysRef.current['arrowup'] = true;
-        touchKeysRef.current['w'] = true;
-        setTouchDebugInfo(`UP ${Math.abs(deltaY)}px`);
-      }
-    }
+    setTouchDebugInfo(`TARGET: ${Math.round(canvasX)}, ${Math.round(canvasY)}`);
     
     // Update the touch start position for continuous movement
     touchStartRef.current = { 
@@ -382,7 +365,7 @@ export default function Game() {
     const state = gameStateRef.current;
     if (!state.gameStarted || !state.isRunning || state.isPaused) {
       touchStartRef.current = null;
-      touchKeysRef.current = {};
+      touchTargetRef.current = { targetX: 0, targetY: 0, isActive: false };
       setShowTouchFeedback(false);
       return;
     }
@@ -407,7 +390,7 @@ export default function Game() {
     }
     
     touchStartRef.current = null;
-    touchKeysRef.current = {};
+    touchTargetRef.current = { targetX: 0, targetY: 0, isActive: false };
     setShowTouchFeedback(false);
     setTimeout(() => setTouchDebugInfo(''), 1000); // Clear debug info after 1 second
   }, []);
@@ -439,41 +422,48 @@ export default function Game() {
 
   const handleInput = () => {
     const keys = keysRef.current;
-    const touchKeys = touchKeysRef.current;
+    const touchTarget = touchTargetRef.current;
     const player = gameStateRef.current.player;
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    // Combine keyboard and touch controls
-    let moved = false;
-    if (keys['arrowleft'] || keys['a'] || touchKeys['arrowleft'] || touchKeys['a']) {
+    // Handle keyboard controls (unchanged)
+    if (keys['arrowleft'] || keys['a']) {
       player.x = Math.max(0, player.x - player.speed);
-      if (touchKeys['arrowleft'] || touchKeys['a']) {
-        moved = true;
-      }
     }
-    if (keys['arrowright'] || keys['d'] || touchKeys['arrowright'] || touchKeys['d']) {
+    if (keys['arrowright'] || keys['d']) {
       player.x = Math.min(canvas.width - player.width, player.x + player.speed);
-      if (touchKeys['arrowright'] || touchKeys['d']) {
-        moved = true;
-      }
     }
-    if (keys['arrowup'] || keys['w'] || touchKeys['arrowup'] || touchKeys['w']) {
+    if (keys['arrowup'] || keys['w']) {
       player.y = Math.max(0, player.y - player.speed);
-      if (touchKeys['arrowup'] || touchKeys['w']) {
-        moved = true;
-      }
     }
-    if (keys['arrowdown'] || keys['s'] || touchKeys['arrowdown'] || touchKeys['s']) {
+    if (keys['arrowdown'] || keys['s']) {
       player.y = Math.min(canvas.height - player.height, player.y + player.speed);
-      if (touchKeys['arrowdown'] || touchKeys['s']) {
-        moved = true;
-      }
     }
     
-    // Update debug info if car moved via touch
-    if (moved && gameStateRef.current.isRunning) {
-      setTouchDebugInfo(prev => prev + ' ✓MOVED');
+    // Handle touch controls - move car towards target position
+    if (touchTarget.isActive) {
+      const targetX = touchTarget.targetX;
+      const targetY = touchTarget.targetY;
+      
+      const deltaX = targetX - player.x;
+      const deltaY = targetY - player.y;
+      const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+      
+      // Only move if we're not already very close to target
+      if (distance > 5) {
+        // Calculate movement speed (faster movement for better responsiveness)
+        const moveSpeed = Math.min(player.speed * 1.5, distance);
+        
+        // Normalize direction and apply movement
+        const dirX = deltaX / distance;
+        const dirY = deltaY / distance;
+        
+        player.x = Math.max(0, Math.min(canvas.width - player.width, player.x + dirX * moveSpeed));
+        player.y = Math.max(0, Math.min(canvas.height - player.height, player.y + dirY * moveSpeed));
+        
+        setTouchDebugInfo(prev => prev + ' ✓MOVING');
+      }
     }
   };
 
@@ -1577,27 +1567,10 @@ export default function Game() {
             </div>
           </div>
           
-          {/* Direction indicators with active states */}
-          <div className={`absolute top-1 left-1/2 transform -translate-x-1/2 text-xs ${
-            touchKeysRef.current['arrowup'] || touchKeysRef.current['w'] 
-              ? 'text-cyan-400 scale-125' 
-              : 'text-white text-opacity-50'
-          }`}>↑</div>
-          <div className={`absolute bottom-1 left-1/2 transform -translate-x-1/2 text-xs ${
-            touchKeysRef.current['arrowdown'] || touchKeysRef.current['s'] 
-              ? 'text-cyan-400 scale-125' 
-              : 'text-white text-opacity-50'
-          }`}>↓</div>
-          <div className={`absolute left-1 top-1/2 transform -translate-y-1/2 text-xs ${
-            touchKeysRef.current['arrowleft'] || touchKeysRef.current['a'] 
-              ? 'text-cyan-400 scale-125' 
-              : 'text-white text-opacity-50'
-          }`}>←</div>
-          <div className={`absolute right-1 top-1/2 transform -translate-y-1/2 text-xs ${
-            touchKeysRef.current['arrowright'] || touchKeysRef.current['d'] 
-              ? 'text-cyan-400 scale-125' 
-              : 'text-white text-opacity-50'
-          }`}>→</div>
+          {/* Touch Active Indicator */}
+          {touchTargetRef.current.isActive && (
+            <div className="absolute inset-0 border-2 border-cyan-400 rounded-full animate-pulse opacity-50"></div>
+          )}
         </div>
         
         {/* Tap to shoot indicator */}
