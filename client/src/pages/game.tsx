@@ -340,16 +340,18 @@ export default function Game() {
     touchKeysRef.current = {};
     
     // Reduced minimum swipe distance for more responsive control
-    const minDistance = 20;
+    const minDistance = 15;
     
     // Set movement keys based on swipe direction with improved sensitivity
     if (Math.abs(deltaX) > minDistance) {
       if (deltaX > 0) {
         touchKeysRef.current['arrowright'] = true;
         touchKeysRef.current['d'] = true;
+        console.log('Touch: Setting right movement, deltaX:', deltaX);
       } else {
         touchKeysRef.current['arrowleft'] = true;
         touchKeysRef.current['a'] = true;
+        console.log('Touch: Setting left movement, deltaX:', deltaX);
       }
     }
     
@@ -357,9 +359,11 @@ export default function Game() {
       if (deltaY > 0) {
         touchKeysRef.current['arrowdown'] = true;
         touchKeysRef.current['s'] = true;
+        console.log('Touch: Setting down movement, deltaY:', deltaY);
       } else {
         touchKeysRef.current['arrowup'] = true;
         touchKeysRef.current['w'] = true;
+        console.log('Touch: Setting up movement, deltaY:', deltaY);
       }
     }
     
@@ -437,18 +441,35 @@ export default function Game() {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
+    // Debug: Log when touch keys are active
+    if (Object.keys(touchKeys).length > 0) {
+      console.log('Touch keys in movement:', touchKeys, 'Player pos:', player.x, player.y);
+    }
+
     // Combine keyboard and touch controls
     if (keys['arrowleft'] || keys['a'] || touchKeys['arrowleft'] || touchKeys['a']) {
       player.x = Math.max(0, player.x - player.speed);
+      if (touchKeys['arrowleft'] || touchKeys['a']) {
+        console.log('Moving left via touch - new X:', player.x);
+      }
     }
     if (keys['arrowright'] || keys['d'] || touchKeys['arrowright'] || touchKeys['d']) {
       player.x = Math.min(canvas.width - player.width, player.x + player.speed);
+      if (touchKeys['arrowright'] || touchKeys['d']) {
+        console.log('Moving right via touch - new X:', player.x);
+      }
     }
     if (keys['arrowup'] || keys['w'] || touchKeys['arrowup'] || touchKeys['w']) {
       player.y = Math.max(0, player.y - player.speed);
+      if (touchKeys['arrowup'] || touchKeys['w']) {
+        console.log('Moving up via touch - new Y:', player.y);
+      }
     }
     if (keys['arrowdown'] || keys['s'] || touchKeys['arrowdown'] || touchKeys['s']) {
       player.y = Math.min(canvas.height - player.height, player.y + player.speed);
+      if (touchKeys['arrowdown'] || touchKeys['s']) {
+        console.log('Moving down via touch - new Y:', player.y);
+      }
     }
   };
 
