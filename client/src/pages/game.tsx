@@ -303,6 +303,7 @@ export default function Game() {
   // Touch controls for mobile
   const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
   const touchKeysRef = useRef<Record<string, boolean>>({});
+  const [showTouchFeedback, setShowTouchFeedback] = useState(false);
 
   const handleTouchStart = useCallback((e: TouchEvent) => {
     e.preventDefault();
@@ -312,6 +313,7 @@ export default function Game() {
       y: touch.clientY, 
       time: Date.now() 
     };
+    setShowTouchFeedback(true);
   }, []);
 
   const handleTouchMove = useCallback((e: TouchEvent) => {
@@ -325,10 +327,10 @@ export default function Game() {
     // Clear previous touch keys
     touchKeysRef.current = {};
     
-    // Minimum swipe distance to register movement
-    const minDistance = 30;
+    // Reduced minimum swipe distance for more responsive control
+    const minDistance = 20;
     
-    // Set movement keys based on swipe direction
+    // Set movement keys based on swipe direction with improved sensitivity
     if (Math.abs(deltaX) > minDistance) {
       if (deltaX > 0) {
         touchKeysRef.current['arrowright'] = true;
@@ -348,6 +350,13 @@ export default function Game() {
         touchKeysRef.current['w'] = true;
       }
     }
+    
+    // Update the touch start position for continuous movement
+    touchStartRef.current = { 
+      x: touch.clientX, 
+      y: touch.clientY, 
+      time: touchStartRef.current.time 
+    };
   }, []);
 
   const handleTouchEnd = useCallback((e: TouchEvent) => {
@@ -373,6 +382,7 @@ export default function Game() {
     
     touchStartRef.current = null;
     touchKeysRef.current = {};
+    setShowTouchFeedback(false);
   }, []);
 
   useEffect(() => {
@@ -1432,6 +1442,10 @@ export default function Game() {
                 ♥
               </span>
             ))}
+            {/* Touch status indicator */}
+            {showTouchFeedback && (
+              <span className="text-xs text-cyan-400 ml-1">📱</span>
+            )}
           </div>
           
           {/* Score in center */}
@@ -1463,25 +1477,80 @@ export default function Game() {
         
       </div>
       
+      {/* Mobile Touch Control Guide */}
+      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-20 block sm:hidden">
+        <div className="relative">
+          {/* Main control circle with touch feedback */}
+          <div className={`w-24 h-24 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${
+            showTouchFeedback 
+              ? 'border-cyan-400 bg-cyan-400 bg-opacity-20 scale-110' 
+              : 'border-white border-opacity-30 bg-white bg-opacity-10'
+          }`}>
+            <div className={`w-16 h-16 rounded-full border flex items-center justify-center ${
+              showTouchFeedback 
+                ? 'border-cyan-400 border-opacity-70' 
+                : 'border-white border-opacity-50'
+            }`}>
+              <div className={`text-xs text-center pixel-font ${
+                showTouchFeedback 
+                  ? 'text-cyan-400' 
+                  : 'text-white text-opacity-75'
+              }`}>
+                {showTouchFeedback ? 'MOVE' : 'SWIPE'}
+              </div>
+            </div>
+          </div>
+          
+          {/* Direction indicators with active states */}
+          <div className={`absolute top-1 left-1/2 transform -translate-x-1/2 text-xs ${
+            touchKeysRef.current['arrowup'] || touchKeysRef.current['w'] 
+              ? 'text-cyan-400 scale-125' 
+              : 'text-white text-opacity-50'
+          }`}>↑</div>
+          <div className={`absolute bottom-1 left-1/2 transform -translate-x-1/2 text-xs ${
+            touchKeysRef.current['arrowdown'] || touchKeysRef.current['s'] 
+              ? 'text-cyan-400 scale-125' 
+              : 'text-white text-opacity-50'
+          }`}>↓</div>
+          <div className={`absolute left-1 top-1/2 transform -translate-y-1/2 text-xs ${
+            touchKeysRef.current['arrowleft'] || touchKeysRef.current['a'] 
+              ? 'text-cyan-400 scale-125' 
+              : 'text-white text-opacity-50'
+          }`}>←</div>
+          <div className={`absolute right-1 top-1/2 transform -translate-y-1/2 text-xs ${
+            touchKeysRef.current['arrowright'] || touchKeysRef.current['d'] 
+              ? 'text-cyan-400 scale-125' 
+              : 'text-white text-opacity-50'
+          }`}>→</div>
+        </div>
+        
+        {/* Tap to shoot indicator */}
+        {Date.now() < gameState.gunEndTime && (
+          <div className="text-center mt-2 text-xs text-white text-opacity-75 pixel-font animate-pulse">
+            TAP TO SHOOT
+          </div>
+        )}
+      </div>
+
       {/* Active Powerups Indicator - Mobile fullscreen optimized */}
       <div className="absolute top-14 left-2 right-2 flex flex-wrap justify-center gap-1 z-20">
         {Date.now() < gameState.speedBoostEndTime && (
-          <div className="pixel-font text-xs text-cyan-400 bg-black bg-opacity-75 px-2 py-1">
+          <div className="pixel-font text-xs text-cyan-400 bg-black bg-opacity-75 px-2 py-1 rounded">
             SPEED BOOST
           </div>
         )}
         {Date.now() < gameState.invulnerabilityEndTime && (
-          <div className="pixel-font text-xs text-yellow-400 bg-black bg-opacity-75 px-2 py-1">
+          <div className="pixel-font text-xs text-yellow-400 bg-black bg-opacity-75 px-2 py-1 rounded">
             WARDEN PROTECTION
           </div>
         )}
         {Date.now() < gameState.gunEndTime && (
-          <div className="pixel-font text-xs text-red-400 bg-black bg-opacity-75 px-2 py-1">
+          <div className="pixel-font text-xs text-red-400 bg-black bg-opacity-75 px-2 py-1 rounded">
             GUN ACTIVE
           </div>
         )}
         {Date.now() < gameState.doublePointsEndTime && (
-          <div className="pixel-font text-xs text-pink-400 bg-black bg-opacity-75 px-2 py-1">
+          <div className="pixel-font text-xs text-pink-400 bg-black bg-opacity-75 px-2 py-1 rounded">
             DOUBLE POINTS
           </div>
         )}

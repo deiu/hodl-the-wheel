@@ -201,6 +201,15 @@ Changelog:
   * Updated HTML title, meta description, and game title display
   * Migrated localStorage keys from "wardenRacer*" to "hodlTheWheel*" prefix
   * Maintained all functionality while establishing crypto-themed brand identity
+- July 03, 2025. Complete mobile optimization and touch controls
+  * Implemented fullscreen mobile layout using entire screen real estate
+  * Enhanced swipe controls with improved sensitivity (20px threshold)
+  * Added visual touch control guide with transparent circular indicator
+  * Implemented real-time touch feedback with color changes and animations
+  * Added direction indicators showing active swipe directions
+  * Created ultra-compact mobile HUD with touch status indicator
+  * Fixed canvas positioning to use absolute fullscreen (100vw x 100vh)
+  * All overlays now use fixed positioning for proper mobile display
 ```
 
 ## User Preferences
