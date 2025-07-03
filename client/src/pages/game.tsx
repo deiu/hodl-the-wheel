@@ -1223,26 +1223,15 @@ export default function Game() {
 
   const resumeGame = () => {
     const state = gameStateRef.current;
-    state.resumeCountdown = 3; // Start 3-second countdown
+    state.isPaused = false;
+    state.resumeCountdown = 0;
+    // Add paused time to total
+    state.totalPausedTime += Date.now() - state.pauseStartTime;
+    if (audioRef.current && isMusicPlaying) {
+      audioRef.current.play().catch(e => console.log('Could not resume audio:', e));
+    }
     updateGameState();
-    
-    const countdownInterval = setInterval(() => {
-      const currentState = gameStateRef.current;
-      currentState.resumeCountdown--;
-      updateGameState();
-      
-      if (currentState.resumeCountdown <= 0) {
-        clearInterval(countdownInterval);
-        currentState.isPaused = false;
-        // Add paused time to total
-        currentState.totalPausedTime += Date.now() - currentState.pauseStartTime;
-        if (audioRef.current && isMusicPlaying) {
-          audioRef.current.play().catch(e => console.log('Could not resume audio:', e));
-        }
-        updateGameState();
-        gameLoop();
-      }
-    }, 1000);
+    gameLoop();
   };
 
   const quitToMainMenu = () => {
