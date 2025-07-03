@@ -304,6 +304,7 @@ export default function Game() {
   const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
   const touchKeysRef = useRef<Record<string, boolean>>({});
   const [showTouchFeedback, setShowTouchFeedback] = useState(false);
+  const [touchDebugInfo, setTouchDebugInfo] = useState('');
 
   const handleTouchStart = useCallback((e: TouchEvent) => {
     // Only handle touch during active gameplay
@@ -320,6 +321,7 @@ export default function Game() {
       time: Date.now() 
     };
     setShowTouchFeedback(true);
+    setTouchDebugInfo('Touch Start');
   }, []);
 
   const handleTouchMove = useCallback((e: TouchEvent) => {
@@ -347,11 +349,11 @@ export default function Game() {
       if (deltaX > 0) {
         touchKeysRef.current['arrowright'] = true;
         touchKeysRef.current['d'] = true;
-        console.log('Touch: Setting right movement, deltaX:', deltaX);
+        setTouchDebugInfo(`RIGHT ${deltaX}px`);
       } else {
         touchKeysRef.current['arrowleft'] = true;
         touchKeysRef.current['a'] = true;
-        console.log('Touch: Setting left movement, deltaX:', deltaX);
+        setTouchDebugInfo(`LEFT ${Math.abs(deltaX)}px`);
       }
     }
     
@@ -359,11 +361,11 @@ export default function Game() {
       if (deltaY > 0) {
         touchKeysRef.current['arrowdown'] = true;
         touchKeysRef.current['s'] = true;
-        console.log('Touch: Setting down movement, deltaY:', deltaY);
+        setTouchDebugInfo(`DOWN ${deltaY}px`);
       } else {
         touchKeysRef.current['arrowup'] = true;
         touchKeysRef.current['w'] = true;
-        console.log('Touch: Setting up movement, deltaY:', deltaY);
+        setTouchDebugInfo(`UP ${Math.abs(deltaY)}px`);
       }
     }
     
@@ -407,6 +409,7 @@ export default function Game() {
     touchStartRef.current = null;
     touchKeysRef.current = {};
     setShowTouchFeedback(false);
+    setTimeout(() => setTouchDebugInfo(''), 1000); // Clear debug info after 1 second
   }, []);
 
   useEffect(() => {
@@ -441,35 +444,36 @@ export default function Game() {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    // Debug: Log when touch keys are active
-    if (Object.keys(touchKeys).length > 0) {
-      console.log('Touch keys in movement:', touchKeys, 'Player pos:', player.x, player.y);
-    }
-
     // Combine keyboard and touch controls
+    let moved = false;
     if (keys['arrowleft'] || keys['a'] || touchKeys['arrowleft'] || touchKeys['a']) {
       player.x = Math.max(0, player.x - player.speed);
       if (touchKeys['arrowleft'] || touchKeys['a']) {
-        console.log('Moving left via touch - new X:', player.x);
+        moved = true;
       }
     }
     if (keys['arrowright'] || keys['d'] || touchKeys['arrowright'] || touchKeys['d']) {
       player.x = Math.min(canvas.width - player.width, player.x + player.speed);
       if (touchKeys['arrowright'] || touchKeys['d']) {
-        console.log('Moving right via touch - new X:', player.x);
+        moved = true;
       }
     }
     if (keys['arrowup'] || keys['w'] || touchKeys['arrowup'] || touchKeys['w']) {
       player.y = Math.max(0, player.y - player.speed);
       if (touchKeys['arrowup'] || touchKeys['w']) {
-        console.log('Moving up via touch - new Y:', player.y);
+        moved = true;
       }
     }
     if (keys['arrowdown'] || keys['s'] || touchKeys['arrowdown'] || touchKeys['s']) {
       player.y = Math.min(canvas.height - player.height, player.y + player.speed);
       if (touchKeys['arrowdown'] || touchKeys['s']) {
-        console.log('Moving down via touch - new Y:', player.y);
+        moved = true;
       }
+    }
+    
+    // Update debug info if car moved via touch
+    if (moved && gameStateRef.current.isRunning) {
+      setTouchDebugInfo(prev => prev + ' ✓MOVED');
     }
   };
 
@@ -1600,6 +1604,13 @@ export default function Game() {
         {Date.now() < gameState.gunEndTime && (
           <div className="text-center mt-2 text-xs text-white text-opacity-75 pixel-font animate-pulse">
             TAP TO SHOOT
+          </div>
+        )}
+        
+        {/* Touch Debug Display - Only show on mobile when debugging */}
+        {touchDebugInfo && (
+          <div className="text-center mt-2 text-xs text-yellow-400 bg-red-900 bg-opacity-75 px-2 py-1 rounded pixel-font">
+            DEBUG: {touchDebugInfo}
           </div>
         )}
       </div>
