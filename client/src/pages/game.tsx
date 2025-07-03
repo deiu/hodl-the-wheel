@@ -114,7 +114,7 @@ export default function Game() {
   const gameOverAudioRef = useRef<HTMLAudioElement | null>(null);
   const [imagesLoaded, setImagesLoaded] = useState(false);
   const [isMusicPlaying, setIsMusicPlaying] = useState(() => {
-    const saved = localStorage.getItem('wardenRacerMusicEnabled');
+    const saved = localStorage.getItem('hodlTheWheelMusicEnabled');
     return saved !== null ? saved === 'true' : true; // Default to enabled
   });
   
@@ -159,7 +159,7 @@ export default function Game() {
 
   const [gameState, setGameState] = useState(gameStateRef.current);
   const [localHighScore, setLocalHighScore] = useState(
-    parseInt(localStorage.getItem('wardenRacerHighScore') || '0')
+    parseInt(localStorage.getItem('hodlTheWheelHighScore') || '0')
   );
 
   // Load car images and initialize audio
@@ -224,11 +224,11 @@ export default function Game() {
       if (isMusicPlaying) {
         audioRef.current.pause();
         setIsMusicPlaying(false);
-        localStorage.setItem('wardenRacerMusicEnabled', 'false');
+        localStorage.setItem('hodlTheWheelMusicEnabled', 'false');
       } else {
         audioRef.current.play().catch(e => console.log('Could not play audio:', e));
         setIsMusicPlaying(true);
-        localStorage.setItem('wardenRacerMusicEnabled', 'true');
+        localStorage.setItem('hodlTheWheelMusicEnabled', 'true');
       }
     }
   }, [isMusicPlaying]);
@@ -1285,7 +1285,7 @@ export default function Game() {
     
     if (state.score > localHighScore) {
       setLocalHighScore(state.score);
-      localStorage.setItem('wardenRacerHighScore', state.score.toString());
+      localStorage.setItem('hodlTheWheelHighScore', state.score.toString());
     }
 
     pauseMusicTemporarily();
@@ -1311,7 +1311,7 @@ export default function Game() {
     return (
       <div className="min-h-screen bg-black text-white flex flex-col justify-start pixel-font p-2 sm:p-4 overflow-y-auto">
         <div className="text-center w-full max-w-md mx-auto">
-          <div className="text-xl sm:text-4xl text-white mb-3 sm:mb-8 animate-pulse mt-2 sm:mt-8">WARDEN RACER</div>
+          <div className="text-xl sm:text-4xl text-white mb-3 sm:mb-8 animate-pulse mt-2 sm:mt-8">HODL THE WHEEL</div>
           
           {/* Portrait optimization notice */}
           <div className="block sm:hidden mb-3 text-xs text-gray-400 bg-gray-800 rounded px-2 py-1">

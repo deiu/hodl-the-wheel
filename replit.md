@@ -1,8 +1,8 @@
-# WardenRacer - Retro Arcade Game
+# HODL the Wheel - Retro Arcade Game
 
 ## Overview
 
-WardenRacer is a retro-style top-down car obstacle avoidance game built with a modern tech stack. The application features a React frontend with a sleek retro aesthetic and an Express.js backend for high score management. Players control a car using arrow keys or WASD, avoiding obstacles while collecting powerups to achieve the highest score possible.
+HODL the Wheel is a retro-style top-down car obstacle avoidance game built with a modern tech stack. The application features a React frontend with a sleek retro aesthetic and an Express.js backend for high score management. Players control a car using arrow keys or WASD, avoiding obstacles while collecting powerups to achieve the highest score possible.
 
 ## System Architecture
 
@@ -196,6 +196,11 @@ Changelog:
   * Added coin collision detection with golden particle effects and sound feedback
   * Updated to use new high-quality PNG cryptocurrency logos with proper branding
   * Removed SOL, SUI, UNI, USDC and replaced with BNB and DOGE variants
+- July 03, 2025. Final project rebrand to HODL the Wheel
+  * Changed project name from "WardenRacer" to "HODL the Wheel"
+  * Updated HTML title, meta description, and game title display
+  * Migrated localStorage keys from "wardenRacer*" to "hodlTheWheel*" prefix
+  * Maintained all functionality while establishing crypto-themed brand identity
 ```
 
 ## User Preferences
