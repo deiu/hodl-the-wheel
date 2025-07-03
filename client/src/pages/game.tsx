@@ -306,6 +306,12 @@ export default function Game() {
   const [showTouchFeedback, setShowTouchFeedback] = useState(false);
 
   const handleTouchStart = useCallback((e: TouchEvent) => {
+    // Only handle touch during active gameplay
+    const state = gameStateRef.current;
+    if (!state.gameStarted || !state.isRunning || state.isPaused) {
+      return;
+    }
+    
     e.preventDefault();
     const touch = e.touches[0];
     touchStartRef.current = { 
@@ -314,10 +320,15 @@ export default function Game() {
       time: Date.now() 
     };
     setShowTouchFeedback(true);
-    console.log('Touch start detected:', touch.clientX, touch.clientY);
   }, []);
 
   const handleTouchMove = useCallback((e: TouchEvent) => {
+    // Only handle touch during active gameplay
+    const state = gameStateRef.current;
+    if (!state.gameStarted || !state.isRunning || state.isPaused) {
+      return;
+    }
+    
     e.preventDefault();
     if (!touchStartRef.current) return;
     
@@ -336,11 +347,9 @@ export default function Game() {
       if (deltaX > 0) {
         touchKeysRef.current['arrowright'] = true;
         touchKeysRef.current['d'] = true;
-        console.log('Touch move right detected');
       } else {
         touchKeysRef.current['arrowleft'] = true;
         touchKeysRef.current['a'] = true;
-        console.log('Touch move left detected');
       }
     }
     
@@ -348,11 +357,9 @@ export default function Game() {
       if (deltaY > 0) {
         touchKeysRef.current['arrowdown'] = true;
         touchKeysRef.current['s'] = true;
-        console.log('Touch move down detected');
       } else {
         touchKeysRef.current['arrowup'] = true;
         touchKeysRef.current['w'] = true;
-        console.log('Touch move up detected');
       }
     }
     
@@ -365,6 +372,15 @@ export default function Game() {
   }, []);
 
   const handleTouchEnd = useCallback((e: TouchEvent) => {
+    // Only handle touch during active gameplay
+    const state = gameStateRef.current;
+    if (!state.gameStarted || !state.isRunning || state.isPaused) {
+      touchStartRef.current = null;
+      touchKeysRef.current = {};
+      setShowTouchFeedback(false);
+      return;
+    }
+    
     e.preventDefault();
     
     // Check if this was a tap (short touch with minimal movement)
@@ -377,8 +393,7 @@ export default function Game() {
       
       // If touch was short (<300ms) and minimal movement (<30px), treat as tap for shooting
       if (touchDuration < 300 && distance < 30) {
-        const state = gameStateRef.current;
-        if (state.isRunning && !state.isPaused && state.gunEndTime > Date.now()) {
+        if (state.gunEndTime > Date.now()) {
           // Trigger shooting
           shootBullet();
         }
@@ -422,35 +437,18 @@ export default function Game() {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    // Debug: Log touch keys when they're active
-    if (Object.keys(touchKeys).length > 0) {
-      console.log('Touch keys active:', touchKeys);
-    }
-
     // Combine keyboard and touch controls
     if (keys['arrowleft'] || keys['a'] || touchKeys['arrowleft'] || touchKeys['a']) {
       player.x = Math.max(0, player.x - player.speed);
-      if (touchKeys['arrowleft'] || touchKeys['a']) {
-        console.log('Moving left via touch');
-      }
     }
     if (keys['arrowright'] || keys['d'] || touchKeys['arrowright'] || touchKeys['d']) {
       player.x = Math.min(canvas.width - player.width, player.x + player.speed);
-      if (touchKeys['arrowright'] || touchKeys['d']) {
-        console.log('Moving right via touch');
-      }
     }
     if (keys['arrowup'] || keys['w'] || touchKeys['arrowup'] || touchKeys['w']) {
       player.y = Math.max(0, player.y - player.speed);
-      if (touchKeys['arrowup'] || touchKeys['w']) {
-        console.log('Moving up via touch');
-      }
     }
     if (keys['arrowdown'] || keys['s'] || touchKeys['arrowdown'] || touchKeys['s']) {
       player.y = Math.min(canvas.height - player.height, player.y + player.speed);
-      if (touchKeys['arrowdown'] || touchKeys['s']) {
-        console.log('Moving down via touch');
-      }
     }
   };
 
