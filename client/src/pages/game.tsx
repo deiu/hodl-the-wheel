@@ -300,15 +300,104 @@ export default function Game() {
     keysRef.current[e.key.toLowerCase()] = false;
   }, []);
 
+  // Touch controls for mobile
+  const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
+  const touchKeysRef = useRef<Record<string, boolean>>({});
+
+  const handleTouchStart = useCallback((e: TouchEvent) => {
+    e.preventDefault();
+    const touch = e.touches[0];
+    touchStartRef.current = { 
+      x: touch.clientX, 
+      y: touch.clientY, 
+      time: Date.now() 
+    };
+  }, []);
+
+  const handleTouchMove = useCallback((e: TouchEvent) => {
+    e.preventDefault();
+    if (!touchStartRef.current) return;
+    
+    const touch = e.touches[0];
+    const deltaX = touch.clientX - touchStartRef.current.x;
+    const deltaY = touch.clientY - touchStartRef.current.y;
+    
+    // Clear previous touch keys
+    touchKeysRef.current = {};
+    
+    // Minimum swipe distance to register movement
+    const minDistance = 30;
+    
+    // Set movement keys based on swipe direction
+    if (Math.abs(deltaX) > minDistance) {
+      if (deltaX > 0) {
+        touchKeysRef.current['arrowright'] = true;
+        touchKeysRef.current['d'] = true;
+      } else {
+        touchKeysRef.current['arrowleft'] = true;
+        touchKeysRef.current['a'] = true;
+      }
+    }
+    
+    if (Math.abs(deltaY) > minDistance) {
+      if (deltaY > 0) {
+        touchKeysRef.current['arrowdown'] = true;
+        touchKeysRef.current['s'] = true;
+      } else {
+        touchKeysRef.current['arrowup'] = true;
+        touchKeysRef.current['w'] = true;
+      }
+    }
+  }, []);
+
+  const handleTouchEnd = useCallback((e: TouchEvent) => {
+    e.preventDefault();
+    
+    // Check if this was a tap (short touch with minimal movement)
+    if (touchStartRef.current) {
+      const touchDuration = Date.now() - touchStartRef.current.time;
+      const touch = e.changedTouches[0];
+      const deltaX = touch.clientX - touchStartRef.current.x;
+      const deltaY = touch.clientY - touchStartRef.current.y;
+      const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+      
+      // If touch was short (<300ms) and minimal movement (<30px), treat as tap for shooting
+      if (touchDuration < 300 && distance < 30) {
+        const state = gameStateRef.current;
+        if (state.isRunning && !state.isPaused && state.gunEndTime > Date.now()) {
+          // Trigger shooting
+          shootBullet();
+        }
+      }
+    }
+    
+    touchStartRef.current = null;
+    touchKeysRef.current = {};
+  }, []);
+
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown);
     document.addEventListener('keyup', handleKeyUp);
     
+    // Add touch event listeners for mobile
+    const canvas = canvasRef.current;
+    if (canvas) {
+      canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+      canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+      canvas.addEventListener('touchend', handleTouchEnd, { passive: false });
+    }
+    
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
       document.removeEventListener('keyup', handleKeyUp);
+      
+      if (canvas) {
+        canvas.removeEventListener('touchstart', handleTouchStart);
+        canvas.removeEventListener('touchmove', handleTouchMove);
+        canvas.removeEventListener('touchend', handleTouchEnd);
+      }
     };
-  }, [handleKeyDown, handleKeyUp]);
+  }, [handleKeyDown, handleKeyUp, handleTouchStart, handleTouchMove, handleTouchEnd]);
 
   const isColliding = (rect1: GameObject, rect2: GameObject): boolean => {
     return rect1.x < rect2.x + rect2.width &&
@@ -319,20 +408,22 @@ export default function Game() {
 
   const handleInput = () => {
     const keys = keysRef.current;
+    const touchKeys = touchKeysRef.current;
     const player = gameStateRef.current.player;
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    if (keys['arrowleft'] || keys['a']) {
+    // Combine keyboard and touch controls
+    if (keys['arrowleft'] || keys['a'] || touchKeys['arrowleft'] || touchKeys['a']) {
       player.x = Math.max(0, player.x - player.speed);
     }
-    if (keys['arrowright'] || keys['d']) {
+    if (keys['arrowright'] || keys['d'] || touchKeys['arrowright'] || touchKeys['d']) {
       player.x = Math.min(canvas.width - player.width, player.x + player.speed);
     }
-    if (keys['arrowup'] || keys['w']) {
+    if (keys['arrowup'] || keys['w'] || touchKeys['arrowup'] || touchKeys['w']) {
       player.y = Math.max(0, player.y - player.speed);
     }
-    if (keys['arrowdown'] || keys['s']) {
+    if (keys['arrowdown'] || keys['s'] || touchKeys['arrowdown'] || touchKeys['s']) {
       player.y = Math.min(canvas.height - player.height, player.y + player.speed);
     }
   };
@@ -1239,8 +1330,10 @@ export default function Game() {
               <div className="grid grid-cols-2 gap-4 text-left">
                 <div className="text-xs text-gray-300">ARROW KEYS: Move</div>
                 <div className="text-xs text-gray-300">WASD: Move</div>
+                <div className="text-xs text-gray-300">SWIPE: Move (Mobile)</div>
                 <div className="text-xs text-gray-300">ESC: Pause/Menu</div>
                 <div className="text-xs text-gray-300">SPACE: Shoot (with gun powerup)</div>
+                <div className="text-xs text-gray-300">TAP: Shoot (Mobile with gun)</div>
               </div>
             </CardContent>
           </Card>
@@ -1299,10 +1392,14 @@ export default function Game() {
       {/* Game Canvas */}
       <canvas 
         ref={canvasRef}
-        className="border-4 border-white w-full h-full max-w-none"
+        className="border-4 border-white w-full h-full max-w-none touch-none"
         width="1200" 
         height="800"
-        style={{ imageRendering: 'pixelated' }}
+        style={{ 
+          imageRendering: 'pixelated',
+          touchAction: 'none',
+          userSelect: 'none'
+        }}
       />
       
       {/* Resume Countdown */}
