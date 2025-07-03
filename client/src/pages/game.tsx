@@ -1181,8 +1181,8 @@ export default function Game() {
     // Play game over sound
     playGameOverSound();
     
-    // Set animation end time for 2 second delay
-    state.gameOverAnimationEndTime = Date.now() + 2000;
+    // Set animation end time for 1.5 second delay
+    state.gameOverAnimationEndTime = Date.now() + 1500;
     
     // Continue game loop to show effects, but delay final game over state
     updateGameState();
