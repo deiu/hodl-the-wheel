@@ -107,6 +107,8 @@ interface GameState {
 
 export default function Game() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [canvasDimensions, setCanvasDimensions] = useState({ width: 1200, height: 800 });
+  const scaleFactorRef = useRef(1);
   const imagesRef = useRef<Record<string, HTMLImageElement>>({});
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const shootAudioRef = useRef<HTMLAudioElement | null>(null);
@@ -342,9 +344,11 @@ export default function Game() {
     const canvasY = (touch.clientY - rect.top) * (canvas.height / rect.height);
     
     // Store the target position for the car to move towards
+    const scale = scaleFactorRef.current;
+    const player = gameStateRef.current.player;
     touchTargetRef.current = {
-      targetX: Math.max(0, Math.min(canvas.width - 40, canvasX - 20)), // Car width is 40px
-      targetY: Math.max(0, Math.min(canvas.height - 40, canvasY - 20)), // Car height is 40px
+      targetX: Math.max(0, Math.min(canvas.width - player.width, canvasX - player.width/2)),
+      targetY: Math.max(0, Math.min(canvas.height - player.height, canvasY - player.height/2)),
       isActive: true
     };
     
@@ -393,7 +397,53 @@ export default function Game() {
 
   }, []);
 
+  // Handle responsive canvas sizing
   useEffect(() => {
+    const updateCanvasSize = () => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      
+      const isMobile = window.innerWidth < 768;
+      const isPortrait = window.innerHeight > window.innerWidth;
+      
+      let canvasWidth, canvasHeight;
+      
+      if (isMobile && isPortrait) {
+        // Mobile portrait: Use full width, calculate height maintaining 3:4 ratio for better mobile gameplay
+        canvasWidth = window.innerWidth;
+        canvasHeight = window.innerHeight;
+        
+        // Set internal canvas resolution for optimal performance
+        const aspectRatio = 3 / 4; // Width to height ratio
+        const resolution = 600; // Base resolution
+        
+        if (canvasWidth / canvasHeight > aspectRatio) {
+          // Too wide, fit to height
+          canvas.width = canvasHeight * aspectRatio;
+          canvas.height = canvasHeight;
+        } else {
+          // Too tall, fit to width  
+          canvas.width = canvasWidth;
+          canvas.height = canvasWidth / aspectRatio;
+        }
+      } else {
+        // Desktop or landscape: Use 1200x800 as base
+        canvas.width = 1200;
+        canvas.height = 800;
+      }
+      
+      // Calculate scale factor for game elements
+      const baseWidth = 1200;
+      const baseHeight = 800;
+      scaleFactorRef.current = Math.min(canvas.width / baseWidth, canvas.height / baseHeight);
+      
+      setCanvasDimensions({ width: canvas.width, height: canvas.height });
+    };
+    
+    updateCanvasSize();
+    window.addEventListener('resize', updateCanvasSize);
+    window.addEventListener('orientationchange', updateCanvasSize);
+    
     document.addEventListener('keydown', handleKeyDown);
     document.addEventListener('keyup', handleKeyUp);
     
@@ -403,6 +453,8 @@ export default function Game() {
     document.addEventListener('touchend', handleTouchEnd, { passive: false });
     
     return () => {
+      window.removeEventListener('resize', updateCanvasSize);
+      window.removeEventListener('orientationchange', updateCanvasSize);
       document.removeEventListener('keydown', handleKeyDown);
       document.removeEventListener('keyup', handleKeyUp);
       document.removeEventListener('touchstart', handleTouchStart);
@@ -572,13 +624,14 @@ export default function Game() {
   const shootBullet = () => {
     const state = gameStateRef.current;
     const player = state.player;
+    const scale = scaleFactorRef.current;
     
     state.bullets.push({
-      x: player.x + player.width / 2 - 4,
+      x: player.x + player.width / 2 - (4 * scale),
       y: player.y,
-      width: 8,
-      height: 16,
-      speed: 8
+      width: 8 * scale,
+      height: 16 * scale,
+      speed: 8 * scale
     });
     
     playShootSound();
@@ -587,6 +640,10 @@ export default function Game() {
   const spawnObstacle = () => {
     const now = Date.now();
     const state = gameStateRef.current;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    
+    const scale = scaleFactorRef.current;
     const spawnRate = 800; // Fixed spawn rate
     
     if (now - state.lastObstacleSpawn > spawnRate) {
@@ -594,10 +651,10 @@ export default function Game() {
       const randomType = carTypes[Math.floor(Math.random() * carTypes.length)];
       
       state.obstacles.push({
-        x: Math.random() * (1200 - 60),
-        y: -80,
-        width: 60,
-        height: 80,
+        x: Math.random() * (canvas.width - (60 * scale)),
+        y: -(80 * scale),
+        width: 60 * scale,
+        height: 80 * scale,
         speed: getCurrentObstacleSpeed(),
         type: randomType
       });
@@ -608,27 +665,31 @@ export default function Game() {
   const spawnPowerup = () => {
     const now = Date.now();
     const state = gameStateRef.current;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    
+    const scale = scaleFactorRef.current;
     
     if (now - state.lastPowerupSpawn > 5333 && Math.random() < 0.3) {
       const powerupTypes: ('life' | 'speed' | 'invulnerability' | 'gun' | 'doublepoints')[] = ['life', 'speed', 'invulnerability', 'gun', 'doublepoints'];
       const randomType = powerupTypes[Math.floor(Math.random() * powerupTypes.length)];
       
       // Set dimensions based on powerup type to maintain aspect ratio
-      let width = 40, height = 40;
+      let width = 40 * scale, height = 40 * scale;
       if (randomType === 'speed') {
-        width = 32; // Narrower for the diagonal lightning bolt
-        height = 48; // Taller to match the diagonal shape
+        width = 32 * scale; // Narrower for the diagonal lightning bolt
+        height = 48 * scale; // Taller to match the diagonal shape
       } else if (randomType === 'doublepoints') {
-        width = 40; // Square for the star
-        height = 40;
+        width = 40 * scale; // Square for the star
+        height = 40 * scale;
       }
       
       state.powerups.push({
-        x: Math.random() * (1200 - width),
+        x: Math.random() * (canvas.width - width),
         y: -height,
         width: width,
         height: height,
-        speed: 2,
+        speed: 2 * scale,
         powerupType: randomType
       });
       state.lastPowerupSpawn = now;
@@ -649,12 +710,17 @@ export default function Game() {
       
       const randomCoinData = coinTypes[Math.floor(Math.random() * coinTypes.length)];
       
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      
+      const scale = scaleFactorRef.current;
+      
       const coin: Coin = {
-        x: Math.random() * (1200 - 30),
-        y: -30,
-        width: 30,
-        height: 30,
-        speed: 2,
+        x: Math.random() * (canvas.width - (30 * scale)),
+        y: -(30 * scale),
+        width: 30 * scale,
+        height: 30 * scale,
+        speed: 2 * scale,
         coinType: randomCoinData.type,
         points: randomCoinData.points
       };
@@ -719,21 +785,24 @@ export default function Game() {
       obstacle.speed = getCurrentObstacleSpeed();
     });
     
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    
     state.obstacles = state.obstacles.filter(obstacle => {
       obstacle.y += obstacle.speed;
-      return obstacle.y < 800;
+      return obstacle.y < canvas.height;
     });
 
     // Update powerups
     state.powerups = state.powerups.filter(powerup => {
       powerup.y += powerup.speed;
-      return powerup.y < 800; // Remove when off-screen
+      return powerup.y < canvas.height; // Remove when off-screen
     });
     
     // Update coins
     state.coins = state.coins.filter(coin => {
       coin.y += coin.speed;
-      return coin.y < 800; // Remove when off-screen
+      return coin.y < canvas.height; // Remove when off-screen
     });
 
     // Update bullets
@@ -1176,6 +1245,10 @@ export default function Game() {
   };
 
   const startGame = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    
+    const scale = scaleFactorRef.current;
     const state = gameStateRef.current;
     state.gameStarted = true;
     state.isRunning = true;
@@ -1189,9 +1262,18 @@ export default function Game() {
     state.explosions = [];
     state.scorePopups = [];
     state.particles = [];
-    state.player = { x: 575, y: 700, width: 50, height: 80, speed: 5, type: 'mycar' };
+    
+    // Scale player size and position based on canvas dimensions
+    state.player = { 
+      x: canvas.width / 2 - (25 * scale), 
+      y: canvas.height - (100 * scale), 
+      width: 50 * scale, 
+      height: 80 * scale, 
+      speed: 5 * scale, 
+      type: 'mycar' 
+    };
     state.gameStartTime = Date.now();
-    state.baseObstacleSpeed = 3;
+    state.baseObstacleSpeed = 3 * scale;
     state.totalPausedTime = 0;
     state.pauseStartTime = 0;
     state.lastObstacleSpawn = 0;
@@ -1421,14 +1503,15 @@ export default function Game() {
       <canvas 
         ref={canvasRef}
         className="absolute inset-0 touch-none"
-        width="1200" 
-        height="800"
+        width={canvasDimensions.width} 
+        height={canvasDimensions.height}
         style={{ 
           imageRendering: 'pixelated',
           touchAction: 'none',
           userSelect: 'none',
           width: '100vw',
-          height: '100vh'
+          height: '100vh',
+          objectFit: 'contain'
         }}
       />
       
