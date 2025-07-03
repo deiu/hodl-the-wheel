@@ -1309,11 +1309,16 @@ export default function Game() {
 
   if (!gameState.gameStarted) {
     return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center pixel-font p-4">
-        <div className="text-center w-full max-w-4xl">
-          <div className="text-2xl sm:text-4xl text-white mb-6 sm:mb-8 animate-pulse">WARDEN RACER</div>
+      <div className="min-h-screen bg-black text-white flex flex-col justify-start pixel-font p-2 sm:p-4 overflow-y-auto">
+        <div className="text-center w-full max-w-md mx-auto">
+          <div className="text-xl sm:text-4xl text-white mb-3 sm:mb-8 animate-pulse mt-2 sm:mt-8">WARDEN RACER</div>
           
-          <Card className="mb-6 sm:mb-8 border-4 border-white bg-gray-900 w-full max-w-sm mx-auto">
+          {/* Portrait optimization notice */}
+          <div className="block sm:hidden mb-3 text-xs text-gray-400 bg-gray-800 rounded px-2 py-1">
+            📱 Optimized for portrait mode
+          </div>
+          
+          <Card className="mb-3 sm:mb-8 border-2 sm:border-4 border-white bg-gray-900 w-full mx-auto">
             <CardContent className="p-4">
               <div className="text-left space-y-2">
                 <div className="text-sm text-green-400">🚗 AVOID OBSTACLES</div>
@@ -1324,57 +1329,56 @@ export default function Game() {
             </CardContent>
           </Card>
           
-          <Card className="mb-6 sm:mb-8 bg-gray-900 border-2 border-gray-600 w-full max-w-md mx-auto">
-            <CardContent className="p-3 sm:p-4">
-              <div className="text-sm text-white mb-3 sm:mb-4">CONTROLS</div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 text-left">
-                <div className="text-xs text-gray-300">ARROW KEYS / WASD: Move</div>
-                <div className="text-xs text-gray-300">SWIPE: Move (Mobile)</div>
+          <Card className="mb-3 sm:mb-8 bg-gray-900 border-2 border-gray-600 w-full mx-auto">
+            <CardContent className="p-2 sm:p-4">
+              <div className="text-sm text-white mb-2 sm:mb-4">CONTROLS</div>
+              <div className="space-y-1 sm:grid sm:grid-cols-2 sm:gap-4 text-left">
+                <div className="text-xs text-gray-300">SWIPE / ARROW KEYS: Move</div>
+                <div className="text-xs text-gray-300">TAP / SPACE: Shoot</div>
                 <div className="text-xs text-gray-300">ESC: Pause/Menu</div>
-                <div className="text-xs text-gray-300">SPACE / TAP: Shoot (with gun)</div>
               </div>
             </CardContent>
           </Card>
           
-          <Card className="mb-6 sm:mb-8 bg-gray-900 border-2 border-gray-600 w-full max-w-md mx-auto">
-            <CardContent className="p-3 sm:p-4">
-              <div className="text-sm text-white mb-3 sm:mb-4">POWERUPS</div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-left">
-                <div className="text-xs text-pink-400 flex items-center gap-2">
-                  <img src={lifeIcon} alt="Life" className="w-4 h-4" />
-                  Life: +1 Life
+          <Card className="mb-3 sm:mb-8 bg-gray-900 border-2 border-gray-600 w-full mx-auto">
+            <CardContent className="p-2 sm:p-4">
+              <div className="text-sm text-white mb-2 sm:mb-4">POWERUPS</div>
+              <div className="space-y-1 sm:grid sm:grid-cols-2 sm:gap-2 text-left">
+                <div className="text-xs text-pink-400 flex items-center gap-1">
+                  <img src={lifeIcon} alt="Life" className="w-3 h-3 sm:w-4 sm:h-4" />
+                  Life
                 </div>
-                <div className="text-xs text-cyan-400 flex items-center gap-2">
-                  <span className="text-base">⚡️</span>
-                  Speed: 5s Boost
+                <div className="text-xs text-cyan-400 flex items-center gap-1">
+                  <span className="text-sm">⚡️</span>
+                  Speed
                 </div>
-                <div className="text-xs text-yellow-400 flex items-center gap-2">
-                  <img src={shieldIcon} alt="Shield" className="w-4 h-4" />
-                  Warden Protection
+                <div className="text-xs text-yellow-400 flex items-center gap-1">
+                  <img src={shieldIcon} alt="Shield" className="w-3 h-3 sm:w-4 sm:h-4" />
+                  Shield
                 </div>
-                <div className="text-xs text-red-400 flex items-center gap-2">
-                  <span className="text-base">🔫</span>
-                  Gun: 5s Shooting
+                <div className="text-xs text-red-400 flex items-center gap-1">
+                  <span className="text-sm">🔫</span>
+                  Gun
                 </div>
-                <div className="text-xs text-purple-400 flex items-center gap-2 sm:col-span-2 justify-center">
-                  <span className="text-base">⭐</span>
-                  Double Points: 10s 2x Score
+                <div className="text-xs text-purple-400 flex items-center gap-1 sm:col-span-2 sm:justify-center">
+                  <span className="text-sm">⭐</span>
+                  Double Points
                 </div>
               </div>
             </CardContent>
           </Card>
           
-          <div className="flex flex-col items-center space-y-3 sm:space-y-4">
+          <div className="flex flex-col items-center space-y-2 sm:space-y-4 mb-4">
             <Button 
               onClick={startGame}
-              className="retro-button text-base sm:text-lg w-full max-w-xs sm:w-auto"
+              className="retro-button text-sm sm:text-lg w-full max-w-xs"
             >
               START GAME
             </Button>
             
             <Button 
               onClick={toggleMusic}
-              className="retro-button text-sm w-full max-w-xs sm:w-auto"
+              className="retro-button text-xs sm:text-sm w-full max-w-xs"
               variant="outline"
             >
               {isMusicPlaying ? '🔊 MUSIC: ON' : '🔇 MUSIC: OFF'}
@@ -1386,19 +1390,19 @@ export default function Game() {
   }
 
   return (
-    <div className="relative w-screen h-screen flex items-center justify-center bg-black">
+    <div className="relative w-screen h-screen flex items-center justify-center bg-black overflow-hidden">
       {/* Game Canvas */}
       <canvas 
         ref={canvasRef}
-        className="border-2 sm:border-4 border-white w-full h-full max-w-none touch-none"
+        className="border-2 sm:border-4 border-white touch-none"
         width="1200" 
         height="800"
         style={{ 
           imageRendering: 'pixelated',
           touchAction: 'none',
           userSelect: 'none',
-          maxHeight: '100vh',
-          maxWidth: '100vw',
+          width: '100vw',
+          height: 'calc(100vh - 100px)', // Leave space for UI on portrait
           objectFit: 'contain'
         }}
       />
@@ -1413,56 +1417,54 @@ export default function Game() {
       )}
       
       {/* Game UI Overlay */}
-      <div className="absolute top-0 left-0 right-0 p-2 sm:p-4 game-ui">
-        {/* Mobile Layout */}
+      <div className="absolute top-0 left-0 right-0 p-1 sm:p-4 game-ui z-10">
+        {/* Mobile Layout - Optimized for Portrait */}
         <div className="block sm:hidden">
-          <div className="flex justify-between items-center mb-2">
-            {/* Lives and Score on same row for mobile */}
-            <div className="flex items-center space-x-3">
-              <div className="flex items-center space-x-1">
-                <span className="pixel-font text-xs text-white">LIVES:</span>
-                <div className="flex space-x-1">
-                  {[...Array(3)].map((_, i) => (
-                    <div 
-                      key={i}
-                      className="w-4 h-4 flex items-center justify-center text-sm"
-                      style={{ 
-                        color: i < gameState.lives ? '#FF1493' : '#333333' 
-                      }}
-                    >
-                      ♥
-                    </div>
-                  ))}
-                </div>
+          {/* Ultra compact single row for portrait mode */}
+          <div className="flex justify-between items-center text-xs bg-black bg-opacity-75 rounded px-2 py-1">
+            {/* Lives */}
+            <div className="flex items-center space-x-1">
+              <div className="flex space-x-0.5">
+                {[...Array(3)].map((_, i) => (
+                  <div 
+                    key={i}
+                    className="w-3 h-3 flex items-center justify-center text-xs"
+                    style={{ 
+                      color: i < gameState.lives ? '#FF1493' : '#333333' 
+                    }}
+                  >
+                    ♥
+                  </div>
+                ))}
               </div>
-              <div className="text-left">
-                <div className="pixel-font text-sm text-yellow-400">SCORE</div>
-                <div className="pixel-font text-sm text-white">
-                  {gameState.score.toString().padStart(6, '0')}
-                </div>
+            </div>
+            
+            {/* Score in center */}
+            <div className="text-center">
+              <div className="pixel-font text-xs text-yellow-400">
+                {gameState.score.toString().padStart(6, '0')}
               </div>
             </div>
             
             {/* High Score on right */}
             <div className="text-right">
-              <div className="pixel-font text-xs text-gray-400">HIGH</div>
-              <div className="pixel-font text-sm text-yellow-400">
-                {localHighScore.toString().padStart(6, '0')}
+              <div className="pixel-font text-xs text-gray-400">
+                H:{localHighScore.toString().padStart(4, '0')}
               </div>
             </div>
           </div>
           
-          {/* Combo and Streak on separate row for mobile */}
+          {/* Combo and Streak - Only show when active, very compact */}
           {(gameState.comboCount > 1 || gameState.streakCount > 0) && (
-            <div className="flex justify-center space-x-4">
+            <div className="flex justify-center space-x-2 mt-1">
               {gameState.comboCount > 1 && (
-                <div className="pixel-font text-xs text-cyan-400">
-                  COMBO x{gameState.comboCount}
+                <div className="pixel-font text-xs text-cyan-400 bg-black bg-opacity-75 px-1 rounded">
+                  x{gameState.comboCount}
                 </div>
               )}
               {gameState.streakCount > 0 && (
-                <div className="pixel-font text-xs text-green-400">
-                  Streak: {gameState.streakCount}
+                <div className="pixel-font text-xs text-green-400 bg-black bg-opacity-75 px-1 rounded">
+                  {gameState.streakCount}
                 </div>
               )}
             </div>
@@ -1517,8 +1519,8 @@ export default function Game() {
         </div>
       </div>
       
-      {/* Active Powerups Indicator - Responsive positioning */}
-      <div className="absolute top-16 sm:top-20 left-0 right-0 flex flex-col items-center space-y-1">
+      {/* Active Powerups Indicator - Portrait optimized */}
+      <div className="absolute top-8 sm:top-20 left-0 right-0 flex flex-wrap justify-center gap-1 sm:flex-col sm:items-center sm:space-y-1">
         {Date.now() < gameState.speedBoostEndTime && (
           <div className="pixel-font text-xs text-cyan-400 bg-black bg-opacity-75 px-2 py-1">
             SPEED BOOST
