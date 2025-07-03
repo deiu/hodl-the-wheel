@@ -1425,56 +1425,104 @@ export default function Game() {
         </div>
       )}
       
-      {/* Game UI Overlay - Minimal mobile HUD */}
-      <div className="absolute top-2 left-2 right-2 z-20">
-        {/* Ultra-compact fullscreen HUD */}
-        <div className="flex justify-between items-center text-xs bg-black bg-opacity-60 rounded px-1 py-0.5 border border-white border-opacity-20">
-          {/* Lives */}
-          <div className="flex space-x-0.5">
-            {[...Array(3)].map((_, i) => (
-              <span 
-                key={i}
-                className="text-xs"
-                style={{ 
-                  color: i < gameState.lives ? '#FF1493' : '#333333' 
-                }}
-              >
-                ♥
-              </span>
-            ))}
-            {/* Touch status indicator */}
-            {showTouchFeedback && (
-              <span className="text-xs text-cyan-400 ml-1">📱</span>
-            )}
+      {/* Game UI Overlay */}
+      <div className="absolute top-2 left-2 right-2 sm:top-4 sm:left-4 sm:right-4 z-20">
+        {/* Mobile Layout - Ultra-compact for small screens */}
+        <div className="block sm:hidden">
+          <div className="flex justify-between items-center text-xs bg-black bg-opacity-60 rounded px-1 py-0.5 border border-white border-opacity-20">
+            {/* Lives */}
+            <div className="flex space-x-0.5">
+              {[...Array(3)].map((_, i) => (
+                <span 
+                  key={i}
+                  className="text-xs"
+                  style={{ 
+                    color: i < gameState.lives ? '#FF1493' : '#333333' 
+                  }}
+                >
+                  ♥
+                </span>
+              ))}
+              {/* Touch status indicator */}
+              {showTouchFeedback && (
+                <span className="text-xs text-cyan-400 ml-1">📱</span>
+              )}
+            </div>
+            
+            {/* Score in center */}
+            <div className="pixel-font text-xs text-yellow-400">
+              {gameState.score}
+            </div>
+            
+            {/* High Score on right */}
+            <div className="pixel-font text-xs text-green-400">
+              H:{Math.max(gameState.score, localHighScore)}
+            </div>
           </div>
           
-          {/* Score in center */}
-          <div className="pixel-font text-xs text-yellow-400">
-            {gameState.score}
-          </div>
-          
-          {/* High Score on right */}
-          <div className="pixel-font text-xs text-green-400">
-            H:{Math.max(gameState.score, localHighScore)}
-          </div>
+          {/* Combo and Streak - Only show when active, very compact */}
+          {(gameState.comboCount > 1 || gameState.streakCount > 0) && (
+            <div className="flex justify-center space-x-2 mt-1">
+              {gameState.comboCount > 1 && (
+                <div className="pixel-font text-xs text-cyan-400 bg-black bg-opacity-75 px-1 rounded">
+                  x{gameState.comboCount}
+                </div>
+              )}
+              {gameState.streakCount > 0 && (
+                <div className="pixel-font text-xs text-green-400 bg-black bg-opacity-75 px-1 rounded">
+                  {gameState.streakCount}
+                </div>
+              )}
+            </div>
+          )}
         </div>
         
-        {/* Combo and Streak - Only show when active, very compact */}
-        {(gameState.comboCount > 1 || gameState.streakCount > 0) && (
-          <div className="flex justify-center space-x-2 mt-1">
+        {/* Desktop Layout - Full information display */}
+        <div className="hidden sm:grid grid-cols-3 gap-4 max-w-4xl mx-auto items-center bg-black bg-opacity-50 p-2 rounded">
+          {/* Lives Display */}
+          <div className="flex items-center justify-center space-x-2">
+            <span className="pixel-font text-sm text-white">LIVES:</span>
+            <div className="flex space-x-1">
+              {[...Array(3)].map((_, i) => (
+                <div 
+                  key={i}
+                  className="w-6 h-6 flex items-center justify-center text-lg"
+                  style={{ 
+                    color: i < gameState.lives ? '#FF1493' : '#333333' 
+                  }}
+                >
+                  ♥
+                </div>
+              ))}
+            </div>
+          </div>
+          
+          {/* Score Display */}
+          <div className="text-center">
+            <div className="pixel-font text-lg text-yellow-400">SCORE</div>
+            <div className="pixel-font text-xl text-white">
+              {gameState.score.toString().padStart(6, '0')}
+            </div>
             {gameState.comboCount > 1 && (
-              <div className="pixel-font text-xs text-cyan-400 bg-black bg-opacity-75 px-1 rounded">
-                x{gameState.comboCount}
+              <div className="pixel-font text-sm text-cyan-400">
+                COMBO x{gameState.comboCount}
               </div>
             )}
             {gameState.streakCount > 0 && (
-              <div className="pixel-font text-xs text-green-400 bg-black bg-opacity-75 px-1 rounded">
-                {gameState.streakCount}
+              <div className="pixel-font text-xs text-green-400">
+                Streak: {gameState.streakCount}
               </div>
             )}
           </div>
-        )}
-        
+          
+          {/* High Score */}
+          <div className="text-center">
+            <div className="pixel-font text-sm text-gray-400">HIGH SCORE</div>
+            <div className="pixel-font text-lg text-yellow-400">
+              {localHighScore.toString().padStart(6, '0')}
+            </div>
+          </div>
+        </div>
       </div>
       
       {/* Mobile Touch Control Guide */}
