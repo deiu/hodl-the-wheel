@@ -245,6 +245,13 @@ export default function Game() {
     }
   }, [isMusicPlaying]);
 
+  const pauseMusicTemporarily = useCallback(() => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+  }, []);
+
   const playShootSound = useCallback(() => {
     if (shootAudioRef.current) {
       shootAudioRef.current.currentTime = 0;
@@ -1152,7 +1159,7 @@ export default function Game() {
       localStorage.setItem('wardenRacerHighScore', state.score.toString());
     }
 
-    stopMusic();
+    pauseMusicTemporarily();
     updateGameState();
     if (animationIdRef.current) {
       cancelAnimationFrame(animationIdRef.current);
