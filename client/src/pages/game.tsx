@@ -1584,7 +1584,7 @@ export default function Game() {
       </div>
 
       {/* Active Powerups Indicator - Mobile fullscreen optimized */}
-      <div className="absolute top-14 left-2 right-2 flex flex-wrap justify-center gap-1 z-20">
+      <div className="absolute top-20 sm:top-24 left-2 right-2 flex flex-wrap justify-center gap-1 z-20">
         {Date.now() < gameState.speedBoostEndTime && (
           <div className="pixel-font text-xs text-cyan-400 bg-black bg-opacity-75 px-2 py-1 rounded">
             SPEED BOOST
