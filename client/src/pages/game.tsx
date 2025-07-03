@@ -102,6 +102,7 @@ interface GameState {
   // Visual effects
   screenShake: number;
   resumeCountdown: number;
+  gameOverAnimationEndTime: number;
 }
 
 export default function Game() {
@@ -149,7 +150,8 @@ export default function Game() {
     bestStreak: 0,
     lastHitTime: 0,
     screenShake: 0,
-    resumeCountdown: 0
+    resumeCountdown: 0,
+    gameOverAnimationEndTime: 0
   });
 
   const keysRef = useRef<Record<string, boolean>>({});
@@ -1015,14 +1017,29 @@ export default function Game() {
   const gameLoop = () => {
     const state = gameStateRef.current;
     
-    if (!state.isRunning || state.isPaused) return;
+    // Check if game over animation delay has ended
+    if (state.gameOverAnimationEndTime > 0 && Date.now() >= state.gameOverAnimationEndTime) {
+      state.gameOverAnimationEndTime = 0;
+      finalizeGameOver();
+      return;
+    }
+    
+    // During game over animation, continue rendering but skip game logic
+    const isGameOverAnimation = state.gameOverAnimationEndTime > 0;
+    
+    if (!state.isRunning && !isGameOverAnimation) return;
+    if (state.isPaused) return;
 
-    handleInput();
-    spawnObstacle();
-    spawnPowerup();
-    spawnCoin();
-    updateGameObjects();
-    checkCollisions();
+    // Only run game logic during normal gameplay, not during game over animation
+    if (!isGameOverAnimation) {
+      handleInput();
+      spawnObstacle();
+      spawnPowerup();
+      spawnCoin();
+      updateGameObjects();
+      checkCollisions();
+    }
+    
     render();
 
     updateGameState();
@@ -1063,6 +1080,7 @@ export default function Game() {
     state.lastHitTime = Date.now();
     state.screenShake = 0;
     state.resumeCountdown = 0;
+    state.gameOverAnimationEndTime = 0;
     updateGameState();
     
     // Only start music if user preference is enabled
@@ -1134,24 +1152,32 @@ export default function Game() {
     const state = gameStateRef.current;
     const player = state.player;
     
-    // Create dramatic death explosion
-    createExplosion(player.x + player.width/2, player.y + player.height/2, 80); // Large explosion
-    createExplosion(player.x + player.width/2 - 20, player.y + player.height/2 - 20, 60);
-    createExplosion(player.x + player.width/2 + 20, player.y + player.height/2 + 20, 60);
-    
-    // Create massive debris field
-    createDebrisParticles(player.x + player.width/2, player.y + player.height/2);
-    createParticles(player.x + player.width/2, player.y + player.height/2, '#FF6B6B', 25);
-    createParticles(player.x + player.width/2, player.y + player.height/2, '#FFA500', 20);
+    // Use same visual effects as car destruction when shooting
+    createExplosion(player.x + player.width/2, player.y + player.height/2);
     createParticles(player.x + player.width/2, player.y + player.height/2, '#FFD700', 15);
-    createParticles(player.x + player.width/2, player.y + player.height/2, '#FF1493', 10);
+    createParticles(player.x + player.width/2, player.y + player.height/2, '#FF6B6B', 8);
+    createParticles(player.x + player.width/2, player.y + player.height/2, '#FFA500', 12);
+    createDebrisParticles(player.x + player.width/2, player.y + player.height/2);
+    addScreenShake(6);
     
-    // Maximum screen shake
-    addScreenShake(15);
+    // Create multiple explosions for enhanced effect (same as car destruction)
+    setTimeout(() => {
+      createExplosion(player.x + player.width/2 + (Math.random() - 0.5) * 20, 
+                    player.y + player.height/2 + (Math.random() - 0.5) * 20);
+    }, 100);
     
     // Play game over sound
     playGameOverSound();
     
+    // Set animation end time for 1 second delay
+    state.gameOverAnimationEndTime = Date.now() + 1000;
+    
+    // Continue game loop to show effects, but delay final game over state
+    updateGameState();
+  };
+
+  const finalizeGameOver = () => {
+    const state = gameStateRef.current;
     state.isRunning = false;
     
     if (state.score > localHighScore) {
