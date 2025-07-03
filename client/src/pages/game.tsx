@@ -1246,9 +1246,17 @@ export default function Game() {
 
   const startGame = () => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas) {
+      console.error('Canvas not found');
+      return;
+    }
     
-    const scale = scaleFactorRef.current;
+    console.log('Starting game, canvas dimensions:', canvas.width, 'x', canvas.height);
+    
+    // Ensure canvas is properly sized - use the current scale factor
+    const scale = scaleFactorRef.current || 1;
+    console.log('Using scale factor:', scale);
+    
     const state = gameStateRef.current;
     state.gameStarted = true;
     state.isRunning = true;
