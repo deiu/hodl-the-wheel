@@ -1390,11 +1390,11 @@ export default function Game() {
   }
 
   return (
-    <div className="relative w-screen h-screen flex items-center justify-center bg-black overflow-hidden">
-      {/* Game Canvas */}
+    <div className="fixed inset-0 bg-black overflow-hidden">
+      {/* Game Canvas - Fullscreen on mobile */}
       <canvas 
         ref={canvasRef}
-        className="border-2 sm:border-4 border-white touch-none"
+        className="absolute inset-0 touch-none"
         width="1200" 
         height="800"
         style={{ 
@@ -1402,125 +1402,69 @@ export default function Game() {
           touchAction: 'none',
           userSelect: 'none',
           width: '100vw',
-          height: 'calc(100vh - 100px)', // Leave space for UI on portrait
-          objectFit: 'contain'
+          height: '100vh'
         }}
       />
       
-      {/* Resume Countdown */}
+      {/* Resume Countdown - Fullscreen */}
       {gameState.resumeCountdown > 0 && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-75 z-50">
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 z-50">
           <div className="text-6xl pixel-font text-white animate-pulse">
             {gameState.resumeCountdown}
           </div>
         </div>
       )}
       
-      {/* Game UI Overlay */}
-      <div className="absolute top-0 left-0 right-0 p-1 sm:p-4 game-ui z-10">
-        {/* Mobile Layout - Optimized for Portrait */}
-        <div className="block sm:hidden">
-          {/* Ultra compact single row for portrait mode */}
-          <div className="flex justify-between items-center text-xs bg-black bg-opacity-75 rounded px-2 py-1">
-            {/* Lives */}
-            <div className="flex items-center space-x-1">
-              <div className="flex space-x-0.5">
-                {[...Array(3)].map((_, i) => (
-                  <div 
-                    key={i}
-                    className="w-3 h-3 flex items-center justify-center text-xs"
-                    style={{ 
-                      color: i < gameState.lives ? '#FF1493' : '#333333' 
-                    }}
-                  >
-                    ♥
-                  </div>
-                ))}
-              </div>
-            </div>
-            
-            {/* Score in center */}
-            <div className="text-center">
-              <div className="pixel-font text-xs text-yellow-400">
-                {gameState.score.toString().padStart(6, '0')}
-              </div>
-            </div>
-            
-            {/* High Score on right */}
-            <div className="text-right">
-              <div className="pixel-font text-xs text-gray-400">
-                H:{localHighScore.toString().padStart(4, '0')}
-              </div>
-            </div>
+      {/* Game UI Overlay - Minimal mobile HUD */}
+      <div className="absolute top-2 left-2 right-2 z-20">
+        {/* Ultra-compact fullscreen HUD */}
+        <div className="flex justify-between items-center text-xs bg-black bg-opacity-60 rounded px-1 py-0.5 border border-white border-opacity-20">
+          {/* Lives */}
+          <div className="flex space-x-0.5">
+            {[...Array(3)].map((_, i) => (
+              <span 
+                key={i}
+                className="text-xs"
+                style={{ 
+                  color: i < gameState.lives ? '#FF1493' : '#333333' 
+                }}
+              >
+                ♥
+              </span>
+            ))}
           </div>
           
-          {/* Combo and Streak - Only show when active, very compact */}
-          {(gameState.comboCount > 1 || gameState.streakCount > 0) && (
-            <div className="flex justify-center space-x-2 mt-1">
-              {gameState.comboCount > 1 && (
-                <div className="pixel-font text-xs text-cyan-400 bg-black bg-opacity-75 px-1 rounded">
-                  x{gameState.comboCount}
-                </div>
-              )}
-              {gameState.streakCount > 0 && (
-                <div className="pixel-font text-xs text-green-400 bg-black bg-opacity-75 px-1 rounded">
-                  {gameState.streakCount}
-                </div>
-              )}
-            </div>
-          )}
+          {/* Score in center */}
+          <div className="pixel-font text-xs text-yellow-400">
+            {gameState.score}
+          </div>
+          
+          {/* High Score on right */}
+          <div className="pixel-font text-xs text-green-400">
+            H:{Math.max(gameState.score, localHighScore)}
+          </div>
         </div>
         
-        {/* Desktop Layout */}
-        <div className="hidden sm:grid grid-cols-3 gap-4 max-w-4xl mx-auto items-center">
-          {/* Lives Display */}
-          <div className="flex items-center justify-center space-x-2">
-            <span className="pixel-font text-sm text-white">LIVES:</span>
-            <div className="flex space-x-1">
-              {[...Array(3)].map((_, i) => (
-                <div 
-                  key={i}
-                  className="w-6 h-6 flex items-center justify-center text-lg"
-                  style={{ 
-                    color: i < gameState.lives ? '#FF1493' : '#333333' 
-                  }}
-                >
-                  ♥
-                </div>
-              ))}
-            </div>
-          </div>
-          
-          {/* Score Display */}
-          <div className="text-center">
-            <div className="pixel-font text-lg text-yellow-400">SCORE</div>
-            <div className="pixel-font text-xl text-white">
-              {gameState.score.toString().padStart(6, '0')}
-            </div>
+        {/* Combo and Streak - Only show when active, very compact */}
+        {(gameState.comboCount > 1 || gameState.streakCount > 0) && (
+          <div className="flex justify-center space-x-2 mt-1">
             {gameState.comboCount > 1 && (
-              <div className="pixel-font text-sm text-cyan-400">
-                COMBO x{gameState.comboCount}
+              <div className="pixel-font text-xs text-cyan-400 bg-black bg-opacity-75 px-1 rounded">
+                x{gameState.comboCount}
               </div>
             )}
             {gameState.streakCount > 0 && (
-              <div className="pixel-font text-xs text-green-400">
-                Streak: {gameState.streakCount}
+              <div className="pixel-font text-xs text-green-400 bg-black bg-opacity-75 px-1 rounded">
+                {gameState.streakCount}
               </div>
             )}
           </div>
-          
-          {/* High Score */}
-          <div className="text-center">
-            <div className="pixel-font text-sm text-gray-400">HIGH SCORE</div>
-            <div className="pixel-font text-lg text-yellow-400">
-              {localHighScore.toString().padStart(6, '0')}
-            </div>
-          </div>
-        </div>
+        )}
+        
       </div>
       
-      {/* Active Powerups Indicator - Portrait optimized */}
-      <div className="absolute top-8 sm:top-20 left-0 right-0 flex flex-wrap justify-center gap-1 sm:flex-col sm:items-center sm:space-y-1">
+      {/* Active Powerups Indicator - Mobile fullscreen optimized */}
+      <div className="absolute top-14 left-2 right-2 flex flex-wrap justify-center gap-1 z-20">
         {Date.now() < gameState.speedBoostEndTime && (
           <div className="pixel-font text-xs text-cyan-400 bg-black bg-opacity-75 px-2 py-1">
             SPEED BOOST
@@ -1543,9 +1487,9 @@ export default function Game() {
         )}
       </div>
       
-      {/* Game Over Screen */}
+      {/* Game Over Screen - Fullscreen */}
       {!gameState.isRunning && gameState.gameStarted && (
-        <div className="absolute inset-0 bg-black bg-opacity-90 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center p-4 z-50">
           <Card className="bg-black border-4 border-white p-4 sm:p-8 max-w-md w-full">
             <CardContent className="text-center">
               <div className="pixel-font text-xl sm:text-2xl text-red-500 mb-4">GAME OVER</div>
@@ -1579,9 +1523,9 @@ export default function Game() {
         </div>
       )}
       
-      {/* Pause Screen */}
+      {/* Pause Screen - Fullscreen */}
       {gameState.isPaused && (
-        <div className="absolute inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-50">
           <Card className="bg-black border-4 border-white p-4 sm:p-8 w-full max-w-sm">
             <CardContent className="text-center">
               <div className="pixel-font text-xl sm:text-2xl text-yellow-400 mb-6">PAUSED</div>
