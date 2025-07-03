@@ -314,6 +314,7 @@ export default function Game() {
       time: Date.now() 
     };
     setShowTouchFeedback(true);
+    console.log('Touch start detected:', touch.clientX, touch.clientY);
   }, []);
 
   const handleTouchMove = useCallback((e: TouchEvent) => {
@@ -335,9 +336,11 @@ export default function Game() {
       if (deltaX > 0) {
         touchKeysRef.current['arrowright'] = true;
         touchKeysRef.current['d'] = true;
+        console.log('Touch move right detected');
       } else {
         touchKeysRef.current['arrowleft'] = true;
         touchKeysRef.current['a'] = true;
+        console.log('Touch move left detected');
       }
     }
     
@@ -345,9 +348,11 @@ export default function Game() {
       if (deltaY > 0) {
         touchKeysRef.current['arrowdown'] = true;
         touchKeysRef.current['s'] = true;
+        console.log('Touch move down detected');
       } else {
         touchKeysRef.current['arrowup'] = true;
         touchKeysRef.current['w'] = true;
+        console.log('Touch move up detected');
       }
     }
     
@@ -389,23 +394,17 @@ export default function Game() {
     document.addEventListener('keydown', handleKeyDown);
     document.addEventListener('keyup', handleKeyUp);
     
-    // Add touch event listeners for mobile
-    const canvas = canvasRef.current;
-    if (canvas) {
-      canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
-      canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
-      canvas.addEventListener('touchend', handleTouchEnd, { passive: false });
-    }
+    // Add touch event listeners to document for better mobile support
+    document.addEventListener('touchstart', handleTouchStart, { passive: false });
+    document.addEventListener('touchmove', handleTouchMove, { passive: false });
+    document.addEventListener('touchend', handleTouchEnd, { passive: false });
     
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
       document.removeEventListener('keyup', handleKeyUp);
-      
-      if (canvas) {
-        canvas.removeEventListener('touchstart', handleTouchStart);
-        canvas.removeEventListener('touchmove', handleTouchMove);
-        canvas.removeEventListener('touchend', handleTouchEnd);
-      }
+      document.removeEventListener('touchstart', handleTouchStart);
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('touchend', handleTouchEnd);
     };
   }, [handleKeyDown, handleKeyUp, handleTouchStart, handleTouchMove, handleTouchEnd]);
 
@@ -423,18 +422,35 @@ export default function Game() {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
+    // Debug: Log touch keys when they're active
+    if (Object.keys(touchKeys).length > 0) {
+      console.log('Touch keys active:', touchKeys);
+    }
+
     // Combine keyboard and touch controls
     if (keys['arrowleft'] || keys['a'] || touchKeys['arrowleft'] || touchKeys['a']) {
       player.x = Math.max(0, player.x - player.speed);
+      if (touchKeys['arrowleft'] || touchKeys['a']) {
+        console.log('Moving left via touch');
+      }
     }
     if (keys['arrowright'] || keys['d'] || touchKeys['arrowright'] || touchKeys['d']) {
       player.x = Math.min(canvas.width - player.width, player.x + player.speed);
+      if (touchKeys['arrowright'] || touchKeys['d']) {
+        console.log('Moving right via touch');
+      }
     }
     if (keys['arrowup'] || keys['w'] || touchKeys['arrowup'] || touchKeys['w']) {
       player.y = Math.max(0, player.y - player.speed);
+      if (touchKeys['arrowup'] || touchKeys['w']) {
+        console.log('Moving up via touch');
+      }
     }
     if (keys['arrowdown'] || keys['s'] || touchKeys['arrowdown'] || touchKeys['s']) {
       player.y = Math.min(canvas.height - player.height, player.y + player.speed);
+      if (touchKeys['arrowdown'] || touchKeys['s']) {
+        console.log('Moving down via touch');
+      }
     }
   };
 
