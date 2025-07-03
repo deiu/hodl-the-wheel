@@ -1166,11 +1166,23 @@ export default function Game() {
                     player.y + player.height/2 + (Math.random() - 0.5) * 20);
     }, 100);
     
+    // Add additional colored circle explosions around the player
+    setTimeout(() => {
+      createExplosion(player.x + player.width/2 - 30, player.y + player.height/2 - 15);
+      createExplosion(player.x + player.width/2 + 30, player.y + player.height/2 - 15);
+      createExplosion(player.x + player.width/2, player.y + player.height/2 + 25);
+    }, 200);
+    
+    setTimeout(() => {
+      createExplosion(player.x + player.width/2 - 20, player.y + player.height/2 + 20);
+      createExplosion(player.x + player.width/2 + 25, player.y + player.height/2 + 15);
+    }, 300);
+    
     // Play game over sound
     playGameOverSound();
     
-    // Set animation end time for 1 second delay
-    state.gameOverAnimationEndTime = Date.now() + 1000;
+    // Set animation end time for 3 second delay
+    state.gameOverAnimationEndTime = Date.now() + 3000;
     
     // Continue game loop to show effects, but delay final game over state
     updateGameState();
