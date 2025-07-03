@@ -304,7 +304,6 @@ export default function Game() {
   const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
   const touchTargetRef = useRef<{ targetX: number; targetY: number; isActive: boolean }>({ targetX: 0, targetY: 0, isActive: false });
   const [showTouchFeedback, setShowTouchFeedback] = useState(false);
-  const [touchDebugInfo, setTouchDebugInfo] = useState('');
 
   const handleTouchStart = useCallback((e: TouchEvent) => {
     // Only handle touch during active gameplay
@@ -321,7 +320,6 @@ export default function Game() {
       time: Date.now() 
     };
     setShowTouchFeedback(true);
-    setTouchDebugInfo('Touch Start');
   }, []);
 
   const handleTouchMove = useCallback((e: TouchEvent) => {
@@ -350,7 +348,7 @@ export default function Game() {
       isActive: true
     };
     
-    setTouchDebugInfo(`TARGET: ${Math.round(canvasX)}, ${Math.round(canvasY)}`);
+
     
     // Update the touch start position for continuous movement
     touchStartRef.current = { 
@@ -392,7 +390,7 @@ export default function Game() {
     touchStartRef.current = null;
     touchTargetRef.current = { targetX: 0, targetY: 0, isActive: false };
     setShowTouchFeedback(false);
-    setTimeout(() => setTouchDebugInfo(''), 1000); // Clear debug info after 1 second
+
   }, []);
 
   useEffect(() => {
@@ -462,7 +460,7 @@ export default function Game() {
         player.x = Math.max(0, Math.min(canvas.width - player.width, player.x + dirX * moveSpeed));
         player.y = Math.max(0, Math.min(canvas.height - player.height, player.y + dirY * moveSpeed));
         
-        setTouchDebugInfo(prev => prev + ' ✓MOVING');
+
       }
     }
   };
@@ -1580,12 +1578,7 @@ export default function Game() {
           </div>
         )}
         
-        {/* Touch Debug Display - Only show on mobile when debugging */}
-        {touchDebugInfo && (
-          <div className="text-center mt-2 text-xs text-yellow-400 bg-red-900 bg-opacity-75 px-2 py-1 rounded pixel-font">
-            DEBUG: {touchDebugInfo}
-          </div>
-        )}
+
       </div>
 
       {/* Active Powerups Indicator - Mobile fullscreen optimized */}

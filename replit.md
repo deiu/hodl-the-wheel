@@ -210,6 +210,13 @@ Changelog:
   * Created ultra-compact mobile HUD with touch status indicator
   * Fixed canvas positioning to use absolute fullscreen (100vw x 100vh)
   * All overlays now use fixed positioning for proper mobile display
+- July 03, 2025. Touch-to-position control system implementation
+  * Replaced directional swipe controls with direct touch-to-position movement
+  * Car now follows finger position in real-time for intuitive mobile gameplay
+  * Implemented smooth movement with 1.5x speed multiplier for responsiveness
+  * Added accurate canvas coordinate mapping for precise touch input
+  * Maintained keyboard controls for desktop while enhancing mobile experience
+  * Removed debug overlays and cleaned up touch control system
 ```
 
 ## User Preferences
