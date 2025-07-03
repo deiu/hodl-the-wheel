@@ -1309,11 +1309,11 @@ export default function Game() {
 
   if (!gameState.gameStarted) {
     return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center pixel-font">
-        <div className="text-center">
-          <div className="text-4xl text-white mb-8 animate-pulse">WARDEN RACER</div>
+      <div className="min-h-screen bg-black text-white flex items-center justify-center pixel-font p-4">
+        <div className="text-center w-full max-w-4xl">
+          <div className="text-2xl sm:text-4xl text-white mb-6 sm:mb-8 animate-pulse">WARDEN RACER</div>
           
-          <Card className="mb-8 border-4 border-white bg-gray-900 w-80 mx-auto">
+          <Card className="mb-6 sm:mb-8 border-4 border-white bg-gray-900 w-full max-w-sm mx-auto">
             <CardContent className="p-4">
               <div className="text-left space-y-2">
                 <div className="text-sm text-green-400">🚗 AVOID OBSTACLES</div>
@@ -1324,24 +1324,22 @@ export default function Game() {
             </CardContent>
           </Card>
           
-          <Card className="mb-8 bg-gray-900 border-2 border-gray-600">
-            <CardContent className="p-4">
-              <div className="text-sm text-white mb-4">CONTROLS</div>
-              <div className="grid grid-cols-2 gap-4 text-left">
-                <div className="text-xs text-gray-300">ARROW KEYS: Move</div>
-                <div className="text-xs text-gray-300">WASD: Move</div>
+          <Card className="mb-6 sm:mb-8 bg-gray-900 border-2 border-gray-600 w-full max-w-md mx-auto">
+            <CardContent className="p-3 sm:p-4">
+              <div className="text-sm text-white mb-3 sm:mb-4">CONTROLS</div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 text-left">
+                <div className="text-xs text-gray-300">ARROW KEYS / WASD: Move</div>
                 <div className="text-xs text-gray-300">SWIPE: Move (Mobile)</div>
                 <div className="text-xs text-gray-300">ESC: Pause/Menu</div>
-                <div className="text-xs text-gray-300">SPACE: Shoot (with gun powerup)</div>
-                <div className="text-xs text-gray-300">TAP: Shoot (Mobile with gun)</div>
+                <div className="text-xs text-gray-300">SPACE / TAP: Shoot (with gun)</div>
               </div>
             </CardContent>
           </Card>
           
-          <Card className="mb-8 bg-gray-900 border-2 border-gray-600">
-            <CardContent className="p-4">
-              <div className="text-sm text-white mb-4">POWERUPS</div>
-              <div className="grid grid-cols-2 gap-2 text-left">
+          <Card className="mb-6 sm:mb-8 bg-gray-900 border-2 border-gray-600 w-full max-w-md mx-auto">
+            <CardContent className="p-3 sm:p-4">
+              <div className="text-sm text-white mb-3 sm:mb-4">POWERUPS</div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-left">
                 <div className="text-xs text-pink-400 flex items-center gap-2">
                   <img src={lifeIcon} alt="Life" className="w-4 h-4" />
                   Life: +1 Life
@@ -1358,7 +1356,7 @@ export default function Game() {
                   <span className="text-base">🔫</span>
                   Gun: 5s Shooting
                 </div>
-                <div className="text-xs text-purple-400 flex items-center gap-2 col-span-2 justify-center">
+                <div className="text-xs text-purple-400 flex items-center gap-2 sm:col-span-2 justify-center">
                   <span className="text-base">⭐</span>
                   Double Points: 10s 2x Score
                 </div>
@@ -1366,17 +1364,17 @@ export default function Game() {
             </CardContent>
           </Card>
           
-          <div className="flex flex-col items-center space-y-4">
+          <div className="flex flex-col items-center space-y-3 sm:space-y-4">
             <Button 
               onClick={startGame}
-              className="retro-button text-lg"
+              className="retro-button text-base sm:text-lg w-full max-w-xs sm:w-auto"
             >
               START GAME
             </Button>
             
             <Button 
               onClick={toggleMusic}
-              className="retro-button text-sm"
+              className="retro-button text-sm w-full max-w-xs sm:w-auto"
               variant="outline"
             >
               {isMusicPlaying ? '🔊 MUSIC: ON' : '🔇 MUSIC: OFF'}
@@ -1392,13 +1390,16 @@ export default function Game() {
       {/* Game Canvas */}
       <canvas 
         ref={canvasRef}
-        className="border-4 border-white w-full h-full max-w-none touch-none"
+        className="border-2 sm:border-4 border-white w-full h-full max-w-none touch-none"
         width="1200" 
         height="800"
         style={{ 
           imageRendering: 'pixelated',
           touchAction: 'none',
-          userSelect: 'none'
+          userSelect: 'none',
+          maxHeight: '100vh',
+          maxWidth: '100vw',
+          objectFit: 'contain'
         }}
       />
       
@@ -1412,8 +1413,64 @@ export default function Game() {
       )}
       
       {/* Game UI Overlay */}
-      <div className="absolute top-0 left-0 right-0 p-4 game-ui">
-        <div className="grid grid-cols-3 gap-4 max-w-4xl mx-auto items-center">
+      <div className="absolute top-0 left-0 right-0 p-2 sm:p-4 game-ui">
+        {/* Mobile Layout */}
+        <div className="block sm:hidden">
+          <div className="flex justify-between items-center mb-2">
+            {/* Lives and Score on same row for mobile */}
+            <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-1">
+                <span className="pixel-font text-xs text-white">LIVES:</span>
+                <div className="flex space-x-1">
+                  {[...Array(3)].map((_, i) => (
+                    <div 
+                      key={i}
+                      className="w-4 h-4 flex items-center justify-center text-sm"
+                      style={{ 
+                        color: i < gameState.lives ? '#FF1493' : '#333333' 
+                      }}
+                    >
+                      ♥
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="text-left">
+                <div className="pixel-font text-sm text-yellow-400">SCORE</div>
+                <div className="pixel-font text-sm text-white">
+                  {gameState.score.toString().padStart(6, '0')}
+                </div>
+              </div>
+            </div>
+            
+            {/* High Score on right */}
+            <div className="text-right">
+              <div className="pixel-font text-xs text-gray-400">HIGH</div>
+              <div className="pixel-font text-sm text-yellow-400">
+                {localHighScore.toString().padStart(6, '0')}
+              </div>
+            </div>
+          </div>
+          
+          {/* Combo and Streak on separate row for mobile */}
+          {(gameState.comboCount > 1 || gameState.streakCount > 0) && (
+            <div className="flex justify-center space-x-4">
+              {gameState.comboCount > 1 && (
+                <div className="pixel-font text-xs text-cyan-400">
+                  COMBO x{gameState.comboCount}
+                </div>
+              )}
+              {gameState.streakCount > 0 && (
+                <div className="pixel-font text-xs text-green-400">
+                  Streak: {gameState.streakCount}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+        
+        {/* Desktop Layout */}
+        <div className="hidden sm:grid grid-cols-3 gap-4 max-w-4xl mx-auto items-center">
           {/* Lives Display */}
           <div className="flex items-center justify-center space-x-2">
             <span className="pixel-font text-sm text-white">LIVES:</span>
@@ -1460,8 +1517,8 @@ export default function Game() {
         </div>
       </div>
       
-      {/* Active Powerups Indicator - Centered on full page */}
-      <div className="absolute top-20 left-0 right-0 flex flex-col items-center space-y-1">
+      {/* Active Powerups Indicator - Responsive positioning */}
+      <div className="absolute top-16 sm:top-20 left-0 right-0 flex flex-col items-center space-y-1">
         {Date.now() < gameState.speedBoostEndTime && (
           <div className="pixel-font text-xs text-cyan-400 bg-black bg-opacity-75 px-2 py-1">
             SPEED BOOST
@@ -1486,22 +1543,22 @@ export default function Game() {
       
       {/* Game Over Screen */}
       {!gameState.isRunning && gameState.gameStarted && (
-        <div className="absolute inset-0 bg-black bg-opacity-90 flex items-center justify-center">
-          <Card className="bg-black border-4 border-white p-8 max-w-md">
+        <div className="absolute inset-0 bg-black bg-opacity-90 flex items-center justify-center p-4">
+          <Card className="bg-black border-4 border-white p-4 sm:p-8 max-w-md w-full">
             <CardContent className="text-center">
-              <div className="pixel-font text-2xl text-red-500 mb-4">GAME OVER</div>
-              <div className="pixel-font text-lg text-white mb-2">FINAL SCORE</div>
-              <div className="pixel-font text-xl text-yellow-400 mb-6">
+              <div className="pixel-font text-xl sm:text-2xl text-red-500 mb-4">GAME OVER</div>
+              <div className="pixel-font text-sm sm:text-lg text-white mb-2">FINAL SCORE</div>
+              <div className="pixel-font text-lg sm:text-xl text-yellow-400 mb-6">
                 {gameState.score.toString().padStart(6, '0')}
               </div>
-              <div className="flex flex-col items-center space-y-4">
-                <Button onClick={restartGame} className="retro-button">
+              <div className="flex flex-col items-center space-y-3 sm:space-y-4">
+                <Button onClick={restartGame} className="retro-button w-full sm:w-auto">
                   RESTART GAME
                 </Button>
                 
                 <Button 
                   onClick={toggleMusic}
-                  className="retro-button text-sm"
+                  className="retro-button text-sm w-full sm:w-auto"
                   variant="outline"
                 >
                   {isMusicPlaying ? '🔊 MUSIC: ON' : '🔇 MUSIC: OFF'}
@@ -1509,7 +1566,7 @@ export default function Game() {
                 
                 <Button 
                   onClick={quitToMainMenu}
-                  className="retro-button text-sm"
+                  className="retro-button text-sm w-full sm:w-auto"
                   variant="destructive"
                 >
                   QUIT TO MAIN MENU
@@ -1522,18 +1579,18 @@ export default function Game() {
       
       {/* Pause Screen */}
       {gameState.isPaused && (
-        <div className="absolute inset-0 bg-black bg-opacity-80 flex items-center justify-center">
-          <Card className="bg-black border-4 border-white p-8">
+        <div className="absolute inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4">
+          <Card className="bg-black border-4 border-white p-4 sm:p-8 w-full max-w-sm">
             <CardContent className="text-center">
-              <div className="pixel-font text-2xl text-yellow-400 mb-6">PAUSED</div>
-              <div className="flex flex-col items-center space-y-4">
-                <Button onClick={resumeGame} className="retro-button">
+              <div className="pixel-font text-xl sm:text-2xl text-yellow-400 mb-6">PAUSED</div>
+              <div className="flex flex-col items-center space-y-3 sm:space-y-4">
+                <Button onClick={resumeGame} className="retro-button w-full sm:w-auto">
                   RESUME
                 </Button>
                 
                 <Button 
                   onClick={toggleMusic}
-                  className="retro-button text-sm"
+                  className="retro-button text-sm w-full sm:w-auto"
                   variant="outline"
                 >
                   {isMusicPlaying ? '🔊 MUSIC: ON' : '🔇 MUSIC: OFF'}
@@ -1541,7 +1598,7 @@ export default function Game() {
                 
                 <Button 
                   onClick={quitToMainMenu}
-                  className="retro-button text-sm"
+                  className="retro-button text-sm w-full sm:w-auto"
                   variant="destructive"
                 >
                   QUIT TO MAIN MENU
