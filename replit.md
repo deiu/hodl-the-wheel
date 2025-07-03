@@ -217,6 +217,12 @@ Changelog:
   * Added accurate canvas coordinate mapping for precise touch input
   * Maintained keyboard controls for desktop while enhancing mobile experience
   * Removed debug overlays and cleaned up touch control system
+- July 03, 2025. Dual shoot button system for mobile accessibility
+  * Added dedicated shoot buttons on both left and right sides of screen
+  * Accommodates both left-handed and right-handed players
+  * Buttons only appear when gun powerup is active
+  * Positioned to avoid interference with movement controls
+  * Responsive sizing and visual feedback with press animations
 ```
 
 ## User Preferences

@@ -1573,36 +1573,69 @@ export default function Game() {
         
       </div>
 
-      {/* Shoot Button - Only visible when gun powerup is active */}
+      {/* Shoot Buttons - Only visible when gun powerup is active */}
       {Date.now() < gameState.gunEndTime && (
-        <div className="absolute bottom-20 sm:bottom-24 right-4 z-30">
-          <button
-            onTouchStart={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              if (gameState.isRunning && !gameState.isPaused) {
-                shootBullet();
-              }
-            }}
-            onTouchEnd={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-            }}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              if (gameState.isRunning && !gameState.isPaused) {
-                shootBullet();
-              }
-            }}
-            className="w-14 h-14 sm:w-16 sm:h-16 bg-red-600 hover:bg-red-700 active:bg-red-800 border-2 border-red-400 rounded-full flex items-center justify-center text-white text-xl sm:text-2xl pixel-font shadow-lg transform active:scale-95 transition-transform select-none"
-          >
-            🔫
-          </button>
-          <div className="text-center mt-1 text-xs text-white text-opacity-75 pixel-font">
-            SHOOT
+        <>
+          {/* Left Shoot Button for right-handed players */}
+          <div className="absolute bottom-20 sm:bottom-24 left-4 z-30">
+            <button
+              onTouchStart={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (gameState.isRunning && !gameState.isPaused) {
+                  shootBullet();
+                }
+              }}
+              onTouchEnd={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (gameState.isRunning && !gameState.isPaused) {
+                  shootBullet();
+                }
+              }}
+              className="w-14 h-14 sm:w-16 sm:h-16 bg-red-600 hover:bg-red-700 active:bg-red-800 border-2 border-red-400 rounded-full flex items-center justify-center text-white text-xl sm:text-2xl pixel-font shadow-lg transform active:scale-95 transition-transform select-none"
+            >
+              🔫
+            </button>
+            <div className="text-center mt-1 text-xs text-white text-opacity-75 pixel-font">
+              SHOOT
+            </div>
           </div>
-        </div>
+
+          {/* Right Shoot Button for left-handed players */}
+          <div className="absolute bottom-20 sm:bottom-24 right-4 z-30">
+            <button
+              onTouchStart={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (gameState.isRunning && !gameState.isPaused) {
+                  shootBullet();
+                }
+              }}
+              onTouchEnd={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (gameState.isRunning && !gameState.isPaused) {
+                  shootBullet();
+                }
+              }}
+              className="w-14 h-14 sm:w-16 sm:h-16 bg-red-600 hover:bg-red-700 active:bg-red-800 border-2 border-red-400 rounded-full flex items-center justify-center text-white text-xl sm:text-2xl pixel-font shadow-lg transform active:scale-95 transition-transform select-none"
+            >
+              🔫
+            </button>
+            <div className="text-center mt-1 text-xs text-white text-opacity-75 pixel-font">
+              SHOOT
+            </div>
+          </div>
+        </>
       )}
 
       {/* Active Powerups Indicator - Mobile fullscreen optimized */}
