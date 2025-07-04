@@ -114,6 +114,13 @@ After cloning the repository, follow these steps to run the project locally:
 
 #### Troubleshooting
 - **"Error: listen ENOTSUP: operation not supported on socket 0.0.0.0:5000"**: Use `npm run dev` instead of `npm start` for local development
+- **HTTP 403 Forbidden Error**: Try these solutions in order:
+  1. Make sure you're using `npm run dev` (not `npm start`)
+  2. Try accessing `http://localhost:5000/health` to test if the server is running
+  3. Clear your browser cache and try again
+  4. Try a different browser or incognito/private mode
+  5. If on Windows, try running your terminal as administrator
+  6. Check if you have any antivirus software blocking the connection
 - **Port already in use**: If port 5000 is occupied, the server will automatically try port 5001
 - **Canvas not found errors**: Refresh the browser page if the game doesn't load initially
 - **Touch controls not working**: Ensure you're using a modern browser with touch event support
