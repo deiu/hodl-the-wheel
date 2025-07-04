@@ -98,6 +98,8 @@ After cloning the repository, follow these steps to run the project locally:
    ```bash
    npm run dev
    ```
+   
+   **Note**: Use `npm run dev` for development, NOT `npm start`. The `npm start` command is for production builds only.
 
 4. **Access the Game**:
    - Open your browser to `http://localhost:5000`
@@ -105,11 +107,13 @@ After cloning the repository, follow these steps to run the project locally:
    - High scores are saved to browser localStorage
 
 #### Development Commands
-- `npm run dev` - Start development server with hot reload
+- `npm run dev` - Start development server with hot reload (use this for local development)
 - `npm run build` - Build for production
-- `npm run preview` - Preview production build locally
+- `npm start` - Start production server (only after building)
+- `npm run check` - Run TypeScript type checking
 
 #### Troubleshooting
+- **"Error: listen ENOTSUP: operation not supported on socket 0.0.0.0:5000"**: Use `npm run dev` instead of `npm start` for local development
 - **Port already in use**: If port 5000 is occupied, the server will automatically try port 5001
 - **Canvas not found errors**: Refresh the browser page if the game doesn't load initially
 - **Touch controls not working**: Ensure you're using a modern browser with touch event support
