@@ -74,6 +74,48 @@ HODL the Wheel is a retro-style top-down car obstacle avoidance game built with 
 
 ## Deployment Strategy
 
+### Local Development Setup
+
+After cloning the repository, follow these steps to run the project locally:
+
+#### Prerequisites
+- Node.js 18+ installed
+- npm or yarn package manager
+
+#### Installation Steps
+1. **Clone and Navigate**:
+   ```bash
+   git clone <repository-url>
+   cd hodl-the-wheel
+   ```
+
+2. **Install Dependencies**:
+   ```bash
+   npm install
+   ```
+
+3. **Start Development Server**:
+   ```bash
+   npm run dev
+   ```
+
+4. **Access the Game**:
+   - Open your browser to `http://localhost:5000`
+   - The game runs entirely client-side with no database required
+   - High scores are saved to browser localStorage
+
+#### Development Commands
+- `npm run dev` - Start development server with hot reload
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build locally
+
+#### Troubleshooting
+- **Port already in use**: If port 5000 is occupied, the server will automatically try port 5001
+- **Canvas not found errors**: Refresh the browser page if the game doesn't load initially
+- **Touch controls not working**: Ensure you're using a modern browser with touch event support
+- **Audio not playing**: Some browsers require user interaction before playing audio - click/tap anywhere first
+- **High scores not saving**: Check that localStorage is enabled in your browser settings
+
 ### Build Process
 1. **Frontend Build**: Vite bundles React app to `dist/public`
 2. **Backend Build**: esbuild compiles Express server to `dist/index.js`
